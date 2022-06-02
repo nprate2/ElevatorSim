@@ -47,13 +47,13 @@ class Person:
     def generate_state_change_data(self):
         state_change_steps = []
         state_change_ids = []
-        for i in range(self.schedule.shape[0]):
-            cur_state = self.schedule[i, 0]
+        for day in range(self.schedule.shape[0]):
+            cur_state = self.schedule[day, 0]
             daily_steps = []
             daily_ids = []
             # Each j represents 1 hour. 1hr = 3600s. 1 step = 3.5s. 3600/3.5 = 1028.5 steps
             for j in range(self.schedule.shape[1]):
-                next_state = self.schedule[i, j]
+                next_state = self.schedule[day, j]
                 if next_state != cur_state:
                     true_step = 1028 * j
                     randomized_true_step = true_step + np.random.randint(-343, 343) # 343 is roughly 1/3 of an hour in steps, so people can be up to 20 mins early or late when switching activities
@@ -76,17 +76,25 @@ class Person:
     """
     def generate_dest_floors_by_state_name(self, building_dest_floors_by_state_name):
         self.dest_floors_by_state_name = deepcopy(building_dest_floors_by_state_name)
-
-        if not self.home_floor in self.dest_floors_by_state_name["class"]:
-            self.dest_floors_by_state_name["class"].append(self.home_floor) # If we want some classes to be done virtually at home
-        if not self.home_floor in self.dest_floors_by_state_name["sleep"]:
-            self.dest_floors_by_state_name["sleep"].append(self.home_floor) # Sleep occurs at home
-        if not self.home_floor in self.dest_floors_by_state_name["meal"]:
-            self.dest_floors_by_state_name["meal"].append(self.home_floor) # Meals can occur at home
-        if not self.home_floor in self.dest_floors_by_state_name["exercise"]:
-            self.dest_floors_by_state_name["exercise"].append(self.home_floor) # If we want some exercises to be done at home
-        if not self.home_floor in self.dest_floors_by_state_name["chores"]:
-            self.dest_floors_by_state_name["chores"].append(self.home_floor) # Chores occur at home
-        if not self.home_floor in self.dest_floors_by_state_name["study"]:
-            self.dest_floors_by_state_name["study"].append(self.home_floor) # If we want some studying to be done at home
+        
+        # Check if various state names exist, and if so, add the person's home floor if it is not already present
+        # If a state is not already in the keys, that means that state was not included in the simulation setup (parameters that trickled down to Person from Building)
+        if "class" in self.dest_floors_by_state_name.keys():
+            if not self.home_floor in self.dest_floors_by_state_name["class"]:
+                self.dest_floors_by_state_name["class"].append(self.home_floor) # If we want some classes to be done virtually at home
+        if "sleep" in self.dest_floors_by_state_name.keys():
+            if not self.home_floor in self.dest_floors_by_state_name["sleep"]:
+                self.dest_floors_by_state_name["sleep"].append(self.home_floor) # Sleep occurs at home
+        if "meal" in self.dest_floors_by_state_name.keys():
+            if not self.home_floor in self.dest_floors_by_state_name["meal"]:
+                self.dest_floors_by_state_name["meal"].append(self.home_floor) # Meals can occur at home
+        if "exercise" in self.dest_floors_by_state_name.keys():
+            if not self.home_floor in self.dest_floors_by_state_name["exercise"]:
+                self.dest_floors_by_state_name["exercise"].append(self.home_floor) # If we want some exercises to be done at home
+        if "chores" in self.dest_floors_by_state_name.keys():
+            if not self.home_floor in self.dest_floors_by_state_name["chores"]:
+                self.dest_floors_by_state_name["chores"].append(self.home_floor) # Chores occur at home
+        if "study" in self.dest_floors_by_state_name.keys():
+            if not self.home_floor in self.dest_floors_by_state_name["study"]:
+                self.dest_floors_by_state_name["study"].append(self.home_floor) # If we want some studying to be done at home
 
