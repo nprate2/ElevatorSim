@@ -31,12 +31,13 @@ class TestSimulation(unittest.TestCase):
         self.building = Building(simple_floor_populations, simple_dest_floors_by_state_name, simple_elevator_starting_floors, simple_elevator_capacity, simple_elevator_algorithm, simple_elevator_steps_per_stop)
 
 
-    def test_state_change_travel_down(self):
+    def test_state_change_going_down(self):
+        
         return
 
-    def test_state_change_travel_up(self):
+    def test_state_change_going_up(self):
         return
-        
+
     def test_handle_state_change(self):
         day = 0
         home_floor_id = 2
@@ -66,10 +67,23 @@ class TestSimulation(unittest.TestCase):
 
     def test_update_counters(self):
         return
-    
+
+    def test_handle_new_up_button_presses(self):
+        return
+    def test_handle_new_down_button_presses(self):
+        return
     def test_handle_new_button_presses(self):
         return
 
+    def test_handle_onboard(self):
+        return
+    def test_handle_offload(self):
+        return
+
+    def test_update_active_up_elevator(self):
+        return
+    def test_update_active_down_elevator(self):
+        return
     def test_update_active_elevators(self):
         return
 

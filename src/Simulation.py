@@ -3,6 +3,33 @@ import numpy as np
 import Schedule
 
 """
+This is the Simulation function heirarchy for the four core Simulation functionalities: handle_state_changes(), update_counters(), handle_new_button_presses(), and update_elevators().
+Entries appear in the order they are located in this file.
+
+        state_change_going_down(building, floor_id, person)
+        state_change_going_up(building, floor_id, person)
+    handle_state_change(building, day, person)
+handle_state_changes(building, day, step)
+
+update_counters(building, day)
+
+    handle_new_up_button_presses(building)
+    handle_new_down_button_presses(building)
+handle_new_button_presses(building)
+
+            handle_onboard(building, elevator)
+            handle_offload(building, elevator)
+        update_active_up_elevator(building, elevator)
+        update_active_down_elevator(building, elevator)
+    update_active_elevators(building, active_elevators)
+    update_idle_elevators(building, idle_elevators)
+update_elevators(building)
+"""
+
+
+
+
+"""
 Updates a Building when a Person needs to travel down.
 
 Takes:
@@ -10,7 +37,7 @@ buidling - Building class
 floor_id - Integer representing the floor to be updated
 person - Person class
 """
-def state_change_travel_down(building, floor_id, person):
+def state_change_going_down(building, floor_id, person):
     building.floors[floor_id].people_on_floor.remove(person)
     building.floors[floor_id].people_going_down.append(person)
     if not building.floors[floor_id].is_down_pressed:
@@ -24,7 +51,7 @@ buidling - Building class
 floor_id - Integer representing the floor to be updated
 person - Person class
 """
-def state_change_travel_up(building, floor_id, person):
+def state_change_going_up(building, floor_id, person):
     building.floors[floor_id].people_on_floor.remove(person)
     building.floors[floor_id].people_going_up.append(person)
     if not building.floors[floor_id].is_up_pressed:
@@ -55,9 +82,9 @@ def handle_state_change(building, day, person):
     if person.dest_floor == cur_floor_id:
         return # Person is already on the floor they want to travel to
     elif person.dest_floor < cur_floor_id:
-        state_change_travel_down(building)
+        state_change_going_down(building, cur_floor_id, person)
     else:
-        state_change_travel_up(building, )
+        state_change_going_up(building, cur_floor_id, person)
 
 """
 Checks for and handles scheduled state changes for all Person classes in a Building class
@@ -72,8 +99,9 @@ def handle_state_changes(building, day, step):
     for i in range(len(building.floors)):
         people = building.floors[i].people_on_floor
         for person in people:
-            if person.state_change_steps[day][0] == step:
-                handle_state_change(building, day, person)
+            if len(person.state_change_steps[day]) != 0: # Check that there are state changes left (they are popped within handle_state_change)
+                if person.state_change_steps[day][0] == step:
+                    handle_state_change(building, day, person)
 
 
 
@@ -120,7 +148,7 @@ Assigns all Floors within the Building's "floors_new_up_button" list to one of t
 Takes:
 building - Building class
 """            
-def new_up_botton_presses(building):
+def handle_new_up_button_presses(building):
     idxs_to_pop = [] # Used to track which up stop idxs have been assigned
     for i in range(len(building.floors_new_up_button)):
         requested_floor = building.floors_new_up_button[i]
@@ -138,7 +166,7 @@ Assigns all Floors within the Building's "floors_new_down_button" list to one of
 Takes:
 building - Building class
 """
-def new_down_button_presses(building):
+def handle_new_down_button_presses(building):
     idxs_to_pop = [] # Used to track which down stop idxs have been assigned
     for i in range(len(building.floors_new_down_button)):
         requested_floor = building.floors_new_down_button[i]
@@ -157,8 +185,8 @@ Takes:
 building - Building class
 """
 def handle_new_button_presses(building):
-    new_up_botton_presses(building)
-    new_down_button_presses(building)
+    handle_new_up_button_presses(building)
+    handle_new_down_button_presses(building)
     
 
 
@@ -337,7 +365,7 @@ def update_elevators(building):
             active_elevators.append(building.elevators[i])
         else:
             idle_elevators.append(building.elevators[i])
-            
+
     # Update active and idle elevators
     update_active_elevators(building, active_elevators)
     update_idle_elevators(building, idle_elevators)

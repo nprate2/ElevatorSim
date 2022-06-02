@@ -43,11 +43,11 @@ for i in range(1000):
 # 1 step = 3.5 seconds. 86,400 seconds in a day. ~24,686 steps
 num_steps_per_day = 24686
 for day in tqdm(range(7)):
-    for step in tqdm(range(int(num_steps_per_day / 4))):
+    for step in tqdm(range(int(num_steps_per_day))):
         Simulation.handle_state_changes(building, day, step) # First. Check if anybody not waiting for an elevator needs to start doing so.
         Simulation.handle_new_button_presses(building)
 
-        Simulation.update_elevators(building) # Update all Elevators, active and idle. (handles stopping to onboard, offload, switching from active to idle or visa versa, moving Persons from Elevators to Floors or visa versa, etc.)
+        #Simulation.update_elevators(building) # Update all Elevators, active and idle. (handles stopping to onboard, offload, switching from active to idle or visa versa, moving Persons from Elevators to Floors or visa versa, etc.)
         Simulation.update_counters(building, day) # Last. Update the counters of anybody waiting for an elevator or anybody traveling on an elevator.
 
     # After each day, can do some analytics
@@ -57,14 +57,43 @@ for day in tqdm(range(7)):
     for i in range(len(building.elevators)):
         avg_elevator_active_percentage += building.elevators[i].steps_active[day]
         avg_elevator_idle_percentage += building.elevators[i].steps_idle[day]
-        print("idle", avg_elevator_idle_percentage)
-        print("active", avg_elevator_active_percentage)
 
-    print("idle div by 3", avg_elevator_idle_percentage / len(building.elevators))
-    print("active div by 3", avg_elevator_active_percentage / len(building.elevators))
-    avg_elevator_idle_percentage = float((avg_elevator_idle_percentage / len(building.elevators))) / num_steps_per_day
-    avg_elevator_active_percentage = float((avg_elevator_active_percentage / len(building.elevators))) / num_steps_per_day
+    print("avg steps idle", avg_elevator_idle_percentage / len(building.elevators))
+    print("avg steps active", avg_elevator_active_percentage / len(building.elevators))
+    avg_elevator_idle_percentage = ((avg_elevator_idle_percentage / len(building.elevators)) / num_steps_per_day) * 100
+    avg_elevator_active_percentage = ((avg_elevator_active_percentage / len(building.elevators)) / num_steps_per_day) * 100
     print("Elevator idle percentage:", avg_elevator_idle_percentage)
     print("Elevator active percentage:", avg_elevator_active_percentage)
+
+    person_steps_waiting = 0.0
+    person_steps_traveling = 0.0
+    num_people = 0
+    for i in range(len(building.floors)):
+        num_people += building.floors[i].num_residents
+        for person in building.floors[i].people_on_floor:
+            person_steps_waiting += person.steps_waiting[day]
+            person_steps_traveling += person.steps_traveling[day]
+
+        for person in building.floors[i].people_going_up:
+            person_steps_waiting += person.steps_waiting[day]
+            person_steps_traveling += person.steps_traveling[day]
+        
+        for person in building.floors[i].people_going_down:
+            person_steps_waiting += person.steps_waiting[day]
+            person_steps_traveling += person.steps_traveling[day]
+
+    for i in range(len(building.elevators)):
+        for key in building.elevators[i].people_by_destination.keys():
+            for people in building.elevators[i].people_by_destination[key]:
+                person_steps_waiting += person.steps_waiting[day]
+                person_steps_traveling += person.steps_traveling[day]
+    avg_person_steps_waiting = person_steps_waiting / num_people
+    avg_person_steps_traveling = person_steps_traveling / num_people
+
+    print("Avg Person Steps traveling", avg_person_steps_traveling)
+    print("Avg Person Steps Waiting", avg_person_steps_waiting)
+    print("Percent Person Steps traveling", (avg_person_steps_traveling / num_steps_per_day) * 100)
+    print("Percent Person Steps Waiting", (avg_person_steps_waiting / num_steps_per_day) * 100)
+    
 
 
