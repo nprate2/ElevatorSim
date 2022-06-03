@@ -152,6 +152,7 @@ def handle_new_up_button_presses(building):
     idxs_to_pop = [] # Used to track which up stop idxs have been assigned
     for i in range(len(building.floors_new_up_button)):
         requested_floor = building.floors_new_up_button[i]
+        #print("calling assign stop")
         assigned = building.elevator_algorithm.assign_stop(building.elevators, requested_floor, "up") # Attempt to assign stop
         if assigned:
             idxs_to_pop.append(i)
@@ -170,6 +171,7 @@ def handle_new_down_button_presses(building):
     idxs_to_pop = [] # Used to track which down stop idxs have been assigned
     for i in range(len(building.floors_new_down_button)):
         requested_floor = building.floors_new_down_button[i]
+        #print("calling assigned stop 2")
         assigned = building.elevator_algorithm.assign_stop(building.elevators, requested_floor, "down") # Attempt to assign stop
         if assigned:
             idxs_to_pop.append(i)
@@ -248,6 +250,7 @@ def update_active_up_elevator(building, elevator):
             if len(elevator.up_stops) == 0:
                 if len(elevator.down_stops) == 0:
                     # Then this Elevator becomes idle
+                    print("set elev " + str(elevator.id) + " idle")
                     elevator.is_moving = False
                 else:
                     # Then this Elevator switches direction of travel (from up to down)
@@ -286,6 +289,7 @@ def update_active_down_elevator(building, elevator):
             if len(elevator.down_stops) == 0:
                 if len(elevator.up_stops) == 0:
                     # Then this Elevator becomes idle
+                    print("set elev " + str(elevator.id) + " idle")
                     elevator.is_moving = False
                 else:
                     # Then this Elevator switches direction of travel (from down to up)
@@ -341,11 +345,13 @@ def update_idle_elevators(building, idle_elevators):
         idle_elevator = idle_elevators[i]
         if len(idle_elevator.up_stops) != 0:
             # Set Elevator to active going up
+            print("set elev " + str(idle_elevator.id) + " active")
             idle_elevator.is_moving = True
             idle_elevator.is_moving_up = True
 
         elif len(idle_elevator.down_stops) != 0:
             # Set Elevator to active doing down
+            print("set elev " + str(idle_elevator.id) + " idle")
             idle_elevator.is_moving = True
             idle_elevator.is_moving_up = False
 

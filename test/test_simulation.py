@@ -30,12 +30,38 @@ class TestSimulation(unittest.TestCase):
         # Runs before each test
         self.building = Building(simple_floor_populations, simple_dest_floors_by_state_name, simple_elevator_starting_floors, simple_elevator_capacity, simple_elevator_algorithm, simple_elevator_steps_per_stop)
 
-
+    """
+    state_change_going_down(building, floor_id, person):
+    
+    Moves a person from people_on_floor to people_going_down and, if it isn't already,
+    sets is_down_pressed to True and adds the floor to floors_new_down_button_pressed
+    """
     def test_state_change_going_down(self):
-        
+        test_floor = 1
+        person = self.building.floors[test_floor].people_on_floor[0] # Grab the only person on the 2nd floor
+        Simulation.state_change_going_down(self.building, 1, person)
+
+        self.assertEqual(0, len(self.building.floors[test_floor].people_on_floor))
+        self.assertEqual(person, self.building.floors[test_floor].people_going_down[0])
+        self.assertTrue(self.building.floors[test_floor].is_down_pressed)
+        self.assertEqual(1, self.building.floors_new_down_button[0])
         return
 
+    """
+    state_change_going_up(building, floor_id, person):
+    
+    Moves a person from people_on_floor to people_going_up and, if it isn't already,
+    sets is_up_pressed to True and adds the floor to floors_new_down_button_pressed
+    """
     def test_state_change_going_up(self):
+        test_floor = 0
+        person = self.building.floors[test_floor].people_on_floor[0] # Grab the only person on the 2nd floor
+        Simulation.state_change_going_up(self.building, 1, person)
+
+        self.assertEqual(0, len(self.building.floors[test_floor].people_on_floor))
+        self.assertEqual(person, self.building.floors[test_floor].people_going_up[0])
+        self.assertTrue(self.building.floors[test_floor].is_up_pressed)
+        self.assertEqual(1, self.building.floors_new_up_button[0])
         return
 
     def test_handle_state_change(self):
@@ -65,7 +91,45 @@ class TestSimulation(unittest.TestCase):
     def test_handle_state_changes(self):
         return
 
+    """
+    update_counters(building, day):
+
+    Increments the steps_waiting, steps_traveling counters for applicable Persons and increments steps_active, steps_idle counters for applicable Elevators
+    """
     def test_update_counters(self):
+        day = 0 # update_counters takes a day argument so it can store different counters for each day of the week
+        waiting_floor = 0
+        traveling_floor = 1
+        active_elevator = 0
+        idle_elevator = 1
+
+        # Set one person to be waiting for an elevator
+        person = self.building.floors[waiting_floor].people_on_floor[0]
+        self.building.floors.people_going_up.append(person)
+        self.building.floors[waiting_floor].people_on_floor.remove(person)
+
+        # Set one person to be traveling on an elevator
+        person = self.building.floors[traveling_floor].people_on_floor[0]
+        self.building.elevators[active_elevator].people_by_destination[waiting_floor] = [person]
+        self.building.floors[traveling_floor].people_on_floor.remove(person)
+        
+        # Set one elevator to be active
+        self.building.elevators[active_elevator].is_moving = True
+        
+        # Set one elevator to be idle
+        self.building.elevators[idle_elevator].is_moving = False
+
+        Simulation.update_counters(self.building, day)
+
+        # Check all four counters got incremented where applicable
+        waiting_person = self.building.floors[waiting_floor].people_going_up[0]
+        self.assertEqual(1, waiting_person.steps_waiting[day])
+
+        traveling_person = self.building.elevators[active_elevator].people_by_destination[waiting_floor][0]
+        self.assertEqual(1, traveling_person.steps_traveling[day])
+
+        self.assertEqual(1, self.building.elevators[idle_elevator].steps_idle[day])
+        self.assertEqual(1, self.building.elevators[active_elevator].steps_active[day])
         return
 
     def test_handle_new_up_button_presses(self):

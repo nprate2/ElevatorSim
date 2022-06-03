@@ -3,19 +3,19 @@ import numpy as np
 class ElevatorAlgorithm:
     algorithm = ""
 
-    assign_stop = None
-
     """
     Takes:
     algorithm - String representing the algorithm to use.
     """
     def __init__(self, algorithm):
         self.algorithm = algorithm
-        if algorithm == "stay_where_stopped":
-            self.assign_stop = assign_stop_SWS
 
-        elif algorithm == "return_to_ground":
-            self.assign_stop = assign_stop_RTG
+    def assign_stop(self, elevators, requested_floor, direction):
+        if self.algorithm == "stay_where_stopped":
+            assign_stop_SWS(elevators, requested_floor, direction)
+        else:
+            assign_stop_RTG(elevators, requested_floor, direction)
+
 
 """
 stay_where_stopped algorithm (SWS):
@@ -43,14 +43,16 @@ Returns:
 assigned - Boolean representing if the requested stop was successfully assigned.
 """
 def assign_stop_SWS(elevators, floor_id, direction):
+    #print("Assign stop SWS")
     # Check if there is an idle elevator on the correct floor
     for i in range(len(elevators)):
         if not elevators[i].is_moving and elevators[i].cur_floor == floor_id:
+            #print("Correct floor elevator")
             if direction == "up":
                 elevators[i].up_stops.append(floor_id)
             else:
                 elevators[i].down_stops.append(floor_id)
-        return True
+            return True
 
     elevators_moving_towards = []
     #elevators_moving_away = []
@@ -67,6 +69,7 @@ def assign_stop_SWS(elevators, floor_id, direction):
             elevators_idle.append(elevators[i])
     
     if len(elevators_moving_towards) != 0:
+        #print("moving towards elevator")
         # Assign the nearest elevator moving towards
         min_dist = np.inf
         min_idx = 0
@@ -81,6 +84,7 @@ def assign_stop_SWS(elevators, floor_id, direction):
             elevators_moving_towards[min_idx].down_stops.append(floor_id)
 
     elif len(elevators_idle) != 0:
+        #print("idle elevators")
         # If there are no elevators moving towards, assign nearest idle elevator
         min_dist = np.inf
         min_idx = 0
@@ -94,8 +98,10 @@ def assign_stop_SWS(elevators, floor_id, direction):
         else:
             elevators_idle[min_idx].down_stops.append(floor_id)
     else:
+        #print("no elevators, not handling")
         # If there are no elevators moving towards and no idle elevators, this stop is not assigned yet. It will be assigned at a later simulation step when one of those two conditions are met.
         return False
+    #print("ret true")
     return True
 
 """
