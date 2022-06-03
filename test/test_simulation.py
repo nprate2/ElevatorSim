@@ -116,7 +116,7 @@ class TestSimulation(unittest.TestCase):
         # Set one elevator to be active
         self.building.elevators[active_elevator].is_moving = True
         
-        # Set one elevator to be idle
+        # Set one elevator to be idle (False is default value so this is kind of pointless)
         self.building.elevators[idle_elevator].is_moving = False
 
         Simulation.update_counters(self.building, day)
@@ -132,16 +132,103 @@ class TestSimulation(unittest.TestCase):
         self.assertEqual(1, self.building.elevators[active_elevator].steps_active[day])
         return
 
+    """
+    handle_new_up_button_presses(building):
+
+    For each floor in floors_new_up_button, the Building's elevator_algorithm is used to assign it to one of the Elevator's up_stops list
+    """
     def test_handle_new_up_button_presses(self):
+        # Test built for the SWS algorithm:
+        # Both elevators are idle, one on 1st floor and one on 2nd floor. The up button on the first floor is pushed. The idle elevator on the 1st floor should be assigned this up_stop.
+        self.building.elevators[1].cur_floor = 1
+        self.building.floors_new_up_button.append(0)
+        Simulation.handle_new_up_button_presses(self.building)
+        
+        self.assertEqual(0, self.building.elevators[0].up_stops[0])
         return
+
+    """
+    handle_new_down_button_presses(building):
+
+    For each floor in floors_new_down_button, the Building's elevator_algorithm is used to assign it to one of the Elevator's down_stops list
+    """
     def test_handle_new_down_button_presses(self):
+        # Test built for the SWS algorithm:
+        # Both elevators are idle, one on 1st floor and one on 2nd floor. The down button on the 2nd floor is pushed. The idle elevator on the 2nd floor should be assigned this down_stop.
+        self.building.elevators[1].cur_floor = 1
+        self.building.floors_new_down_button.append(1)
+        Simulation.handle_new_down_button_presses(self.building)
+        
+        self.assertEqual(1, self.building.elevators[1].down_stops[0])
         return
+    """
+    handle_new_button_presses(building):
+
+    Calls handle_new_down_button_presses(building) and handle_new_up_button_presses(building)
+    """
     def test_handle_new_button_presses(self):
         return
 
+    """
+    handle_onboard(building, elevator):
+
+    Moves people from people_going_up and people_going_down lists to an Elevator's people_by_destination dictionary.
+    Also updates the Elevator's up_stops or down_stops to include the destinations of the people onboarding.
+    """
     def test_handle_onboard(self):
+        person_going_up = self.building.floors[0].people_on_floor[0]
+        person_going_up.dest_floor = 1
+        self.building.floors[0].people_on_floor.remove(person_going_up)
+        self.building.floors[0].people_going_up.append(person_going_up)
+
+        person_going_down = self.building.floors[1].people_on_floor[1]
+        person_going_down.dest_floor = 0
+        self.building.floors[1].people_on_floor.remove(person_going_down)
+        self.building.floors[1].people_going_down.append(person_going_down)
+
+        self.building.elevators[0].cur_floor = 0
+        self.building.elevators[0].is_moving = True
+        self.building.elevators[0].is_moving_up = True
+
+        self.building.elevators[1].cur_floor = 1
+        self.building.elevators[1].is_moving = True
+        self.building.elevators[1].is_mocing_up = False
+
+        Simulation.handle_onboard(self.building, self.building.elevators[0])
+        Simulation.handle_onboard(self.building, self.building.elevators[1])
+
+        self.assertEqual(0, len(self.building.floors[0].people_going_up))
+        self.assertEqual(person_going_up, self.building.elevators[0].people_by_destination[person_going_up.dest_floor][0])
+        self.assertEqual(person_going_up.dest_floor, self.building.elevators[0].up_stops[0])
+
+        self.assertEqual(0, len(self.building.floors[1].people_going_down))
+        self.assertEqual(person_going_down, self.building.elevators[1].people_by_destination[person_going_down.dest_floor][0])
+        self.assertEqual(person_going_down.dest_floor, self.building.elevators[1].down_stops[0])
+
+
         return
+    
+    """
+    handle_offload(building, elevator):
+
+    Moves people from an Elevator's people_by_destination dictionary to the Elevator's current Floor's people_on_floor list.
+    """
     def test_handle_offload(self):
+        person1 = self.building.floors[0].people_on_floor[0]
+        self.building.floors[0].people_on_floor.remove(person1)
+        self.building.elevators[0].people_by_destination[0] = [person1]
+
+        person2 = self.building.floors[1].people_on_floor[1]
+        self.building.floors[1].people_on_floor.remove(person2)
+        self.building.elevators[1].people_by_destination[1] = [person2]
+
+        Simulation.handle_offload(self.building, self.building.elevators[0])
+        Simulation.handle_offload(self.building, self.building.elevators[1])
+
+        self.assertEqual(0, len(self.building.elevators[0].people_by_destination.keys()))
+        self.assertEqual(person1, self.building.floors[0].people_on_floor[0])
+        self.assertEqual(0, len(self.building.elevators[1].people_by_destination.keys()))
+        self.assertEqual(person2, self.building.floors[1].people_on_floor[0])
         return
 
     def test_update_active_up_elevator(self):

@@ -198,7 +198,7 @@ Handles people onboarding an Elevator at its current floor.
 
 Takes:
 building - Building class
-elevator - Elevator class that is active and travelling up
+elevator - Elevator class that is active
 """
 def handle_onboard(building, elevator):
     if elevator.is_moving_up:
@@ -206,15 +206,25 @@ def handle_onboard(building, elevator):
         people_onboarding = building.floors[elevator.cur_floor].people_going_up
         for person in people_onboarding:
             building.floors[elevator.cur_floor].people_going_up.remove(person)
-            elevator.people_by_destination[person.dest_floor].append(person) # Add Person to the list associated with their destination floor
-            if person.dest_floor not in elevator.up_stops: # If their destination floor is not yet in the Elevator's stop list, add it
+            # Add Person to the list associated with their destination floor
+            if person.dest_floor in elevator.people_by_destination.keys():
+                elevator.people_by_destination[person.dest_floor].append(person)
+            else:
+                elevator.people_by_destination[person.dest_floor] = [person]
+            # If their destination floor is not yet in the Elevator's stop list, add it
+            if person.dest_floor not in elevator.up_stops:
                 elevator.up_stops.append(person.dest_floor)
     else:
         # Going down
         people_onboarding = building.floors[elevator.cur_floor].people_going_down
         for person in people_onboarding:
             building.floors[elevator.cur_floor].people_going_down.remove(person)
-            elevator.people_by_destination[person.dest_floor].append(person)
+            # Add Person to the list associated with their destination floor
+            if person.dest_floor in elevator.people_by_destination.keys():
+                elevator.people_by_destination[person.dest_floor].append(person)
+            else:
+                elevator.people_by_destination[person.dest_floor] = [person]
+            # If their destination floor is not yet in the Elevator's stop list, add it
             if person.dest_floor not in elevator.down_stops:
                 elevator.up_stops.append(person.dest_floor)
 
@@ -223,7 +233,7 @@ Handles people offloading an Elevator at its current floor.
 
 Takes:
 building - Building class
-elevator - Elevator class that is active and travelling up
+elevator - Elevator class that is active
 """
 def handle_offload(building, elevator):
     people_offloading = elevator.people_by_destination[elevator.cur_floor]
@@ -238,7 +248,7 @@ Updates an active Elevator travelling up in a Building each tick of simulation.
 
 Takes:
 building - Building class
-elevator - Elevator class that is active and travelling up
+elevator - Elevator class that is active and traveling up
 """
 def update_active_up_elevator(building, elevator):
     # Check if elevator has stopped_steps remaining (it is in the process of onloading or offloading Persons)
@@ -255,9 +265,11 @@ def update_active_up_elevator(building, elevator):
                 else:
                     # Then this Elevator switches direction of travel (from up to down)
                     elevator.is_moving_up = False
+            else:
+                # More up stope
+                elevator.cur_floor += 1 # Increment the cur_floor to signify moving up a floor
         return # If stopped, the elevator does nothing.
     
-    elevator.cur_floor += 1 # Increment the cur_floor to signify moving up a floor
     if elevator.cur_floor in elevator.up_stops:
         elevator.stopped_steps = elevator.steps_per_stop # If Elevator is stopping to onboard Persons, set stopped_steps counter
 
@@ -269,6 +281,9 @@ def update_active_up_elevator(building, elevator):
 
         # Remove the handled floor from up_stops
         elevator.up_stops.remove(elevator.cur_floor)
+    
+    else:
+        elevator.cur_floor += 1 # Increment the cur_floor to signify moving up a floor
         
     return
 
@@ -277,7 +292,7 @@ Updates an active Elevator travelling down in a Building each tick of simulation
 
 Takes:
 building - Building class
-elevator - Elevator class that is active and travelling down
+elevator - Elevator class that is active and traveling down
 """
 def update_active_down_elevator(building, elevator):
     # Check if elevator has stopped_steps remaining (it is in the process of onloading or offloading Persons)
@@ -294,9 +309,10 @@ def update_active_down_elevator(building, elevator):
                 else:
                     # Then this Elevator switches direction of travel (from down to up)
                     elevator.is_moving_up = True
+            else:
+                # More down stops
+                elevator.cur_floor -= 1 # Decrement the cur_floor to signify the Elevator moving down a floor
         return # If stopped, the elevator does nothing.
-
-    elevator.cur_floor -= 1 # Decrement the cur_floor to signify the Elevator moving down a floor
 
     if elevator.cur_floor in elevator.down_stops:
         elevator.stopped_steps = elevator.steps_per_stop # If Elevator is stopping to onboard Persons, set stopped_steps counter
@@ -312,6 +328,8 @@ def update_active_down_elevator(building, elevator):
 
         # Remove the handled floor from down_stops
         elevator.down_stops.remove(elevator.cur_floor)
+    else:
+        elevator.cur_floor -= 1 # Decrement the cur_floor to signify the Elevator moving down a floor
 
     return
 
