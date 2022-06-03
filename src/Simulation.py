@@ -1,3 +1,4 @@
+from copy import deepcopy
 import numpy as np
 
 import Schedule
@@ -205,28 +206,35 @@ def handle_onboard(building, elevator):
         # Going up
         people_onboarding = building.floors[elevator.cur_floor].people_going_up
         for person in people_onboarding:
+            # Remove each onboarding person from the people_going_up list on this floor
             building.floors[elevator.cur_floor].people_going_up.remove(person)
+
             # Add Person to the list associated with their destination floor
             if person.dest_floor in elevator.people_by_destination.keys():
                 elevator.people_by_destination[person.dest_floor].append(person)
             else:
-                elevator.people_by_destination[person.dest_floor] = [person]
+                elevator.people_by_destination[person.dest_floor] = deepcopy([person])
+            
             # If their destination floor is not yet in the Elevator's stop list, add it
             if person.dest_floor not in elevator.up_stops:
                 elevator.up_stops.append(person.dest_floor)
+
     else:
         # Going down
         people_onboarding = building.floors[elevator.cur_floor].people_going_down
         for person in people_onboarding:
+            # Remove each onboarding person from the people_going_up list on this floor
             building.floors[elevator.cur_floor].people_going_down.remove(person)
+            
             # Add Person to the list associated with their destination floor
             if person.dest_floor in elevator.people_by_destination.keys():
                 elevator.people_by_destination[person.dest_floor].append(person)
             else:
-                elevator.people_by_destination[person.dest_floor] = [person]
+                elevator.people_by_destination[person.dest_floor] = deepcopy([person])
+            
             # If their destination floor is not yet in the Elevator's stop list, add it
             if person.dest_floor not in elevator.down_stops:
-                elevator.up_stops.append(person.dest_floor)
+                elevator.down_stops.append(person.dest_floor)
 
 """
 Handles people offloading an Elevator at its current floor.
@@ -240,7 +248,7 @@ def handle_offload(building, elevator):
     if len(people_offloading) != 0:
         for person in people_offloading:
             building.floors[elevator.cur_floor].people_on_floor.append(person)
-        elevator.people_by_destination.pop(elevator.cur_floor)
+            elevator.people_by_destination[elevator.cur_floor].remove(person)
 
 
 """

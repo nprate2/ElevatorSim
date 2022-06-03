@@ -60,6 +60,7 @@ class TestBuilding(unittest.TestCase):
         self.assertEqual(0, building.elevators[0].steps_idle[test_day])
         self.assertEqual(1, building.elevators[1].steps_idle[test_day])
         self.assertEqual(0, building.elevators[1].steps_active[test_day])
+
         return
     
     def test_generate_floors(self):

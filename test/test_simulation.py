@@ -176,20 +176,21 @@ class TestSimulation(unittest.TestCase):
     Also updates the Elevator's up_stops or down_stops to include the destinations of the people onboarding.
     """
     def test_handle_onboard(self):
+        # Person wanting to going up from 1st to 2nd floor
         person_going_up = self.building.floors[0].people_on_floor[0]
         person_going_up.dest_floor = 1
         self.building.floors[0].people_on_floor.remove(person_going_up)
         self.building.floors[0].people_going_up.append(person_going_up)
-
+        # Person wanting to go down from 2nd to 1st floor
         person_going_down = self.building.floors[1].people_on_floor[0]
         person_going_down.dest_floor = 0
         self.building.floors[1].people_on_floor.remove(person_going_down)
         self.building.floors[1].people_going_down.append(person_going_down)
-
+        # Elevator on 1st floor going up
         self.building.elevators[0].cur_floor = 0
         self.building.elevators[0].is_moving = True
         self.building.elevators[0].is_moving_up = True
-
+        # Elevator on 2nd floor going down
         self.building.elevators[1].cur_floor = 1
         self.building.elevators[1].is_moving = True
         self.building.elevators[1].is_mocing_up = False
@@ -197,15 +198,16 @@ class TestSimulation(unittest.TestCase):
         Simulation.handle_onboard(self.building, self.building.elevators[0])
         Simulation.handle_onboard(self.building, self.building.elevators[1])
 
+        # 1st floor people_going_up should be empty since Elevator 0 picked them up (moved into Elevator's people_by_destination dictionary)
         self.assertEqual(0, len(self.building.floors[0].people_going_up))
         self.assertEqual(person_going_up, self.building.elevators[0].people_by_destination[person_going_up.dest_floor][0])
-
+        # The Person's destination floor should have been added to Elevator 0's up_stops
         self.assertEqual(1, len(self.building.elevators[0].up_stops))
         self.assertEqual(person_going_up.dest_floor, self.building.elevators[0].up_stops[0])
-
+        # 2nd floor people_going_down should be empty since Elevator 1 picked them up
         self.assertEqual(0, len(self.building.floors[1].people_going_down))
         self.assertEqual(person_going_down, self.building.elevators[1].people_by_destination[person_going_down.dest_floor][0])
-
+        # The Person's destination floor should have been added to Elevator 1's down_stops
         self.assertEqual(1, len(self.building.elevators[1].down_stops))
         self.assertEqual(person_going_down.dest_floor, self.building.elevators[1].down_stops[0])
 
@@ -218,11 +220,12 @@ class TestSimulation(unittest.TestCase):
     Moves people from an Elevator's people_by_destination dictionary to the Elevator's current Floor's people_on_floor list.
     """
     def test_handle_offload(self):
+        # Person wanting to offload on 1st Floor and Elevator currently on 1st Floor
         person1 = self.building.floors[0].people_on_floor[0]
         self.building.floors[0].people_on_floor.remove(person1)
         self.building.elevators[0].cur_floor = 0
         self.building.elevators[0].people_by_destination[0] = [person1]
-
+        # Person wanting to offload on 2nd Floor and Elevator currently on 2nd Floor
         person2 = self.building.floors[1].people_on_floor[0]
         self.building.floors[1].people_on_floor.remove(person2)
         self.building.elevators[1].cur_floor = 1
@@ -230,13 +233,11 @@ class TestSimulation(unittest.TestCase):
 
         Simulation.handle_offload(self.building, self.building.elevators[0])
         Simulation.handle_offload(self.building, self.building.elevators[1])
-
-        self.assertEqual(0, len(self.building.elevators[0].people_by_destination.keys()))
-        self.assertEqual(1, len(self.building.elevators[0].people_by_destination.keys()))
+        # Person should have been removed from 1st Floor Elevator's people_by_destination dictionary and added to the 1st Floor's people_on_floor list
+        self.assertEqual(0, len(self.building.elevators[0].people_by_destination[0]))
         self.assertEqual(person1, self.building.floors[0].people_on_floor[0])
-
-        self.assertEqual(0, len(self.building.elevators[1].people_by_destination.keys()))
-        self.assertEqual(1, len(self.building.elevators[0].people_by_destination.keys()))
+        # Person should have been removed from 2nd Floor Elevator's people_by_destination dictionary and added to the 2nd Floor's people_on_floor list
+        self.assertEqual(0, len(self.building.elevators[1].people_by_destination[1]))
         self.assertEqual(person2, self.building.floors[1].people_on_floor[0])
         return
 

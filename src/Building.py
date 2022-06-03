@@ -49,3 +49,7 @@ class Building:
     def generate_elevators(self, elevator_starting_floors, elevator_capacity, elevator_steps_per_stop):
         for i in range(len(elevator_starting_floors)):
             self.elevators.append(Elevator(id=i, capacity=elevator_capacity, cur_floor=elevator_starting_floors[i], steps_per_stop=elevator_steps_per_stop))
+            # Initialize each Elevator's people_by_destination dictionary with deepcopied empty lists (can't do this within an Elevator class because it doesn't know how many floors there are)
+            for j in range(len(self.floors)):
+                self.elevators[i].people_by_destination[j] = deepcopy([])
+            
