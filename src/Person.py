@@ -33,7 +33,9 @@ class Person:
         # Ensure memory is unique per instance
         self.steps_waiting = deepcopy(self.steps_waiting)
         self.steps_traveling = deepcopy(self.steps_traveling)
-        self.schedule = deepcopy(Schedule.generate_schedule())
+
+        self.schedule = deepcopy(self.schedule)
+        self.schedule = Schedule.generate_schedule()
         self.state_change_steps = deepcopy(self.state_change_steps)
         self.state_change_ids = deepcopy(self.state_change_ids)
 
@@ -47,8 +49,8 @@ class Person:
     def generate_state_change_data(self):
         state_change_steps = []
         state_change_ids = []
+        cur_state = self.schedule[0, 0]
         for day in range(self.schedule.shape[0]):
-            cur_state = self.schedule[day, 0]
             daily_steps = []
             daily_ids = []
             # Each j represents 1 hour. 1hr = 3600s. 1 step = 3.5s. 3600/3.5 = 1028.5 steps
@@ -56,15 +58,21 @@ class Person:
                 next_state = self.schedule[day, j]
                 if next_state != cur_state:
                     true_step = 1028 * j
-                    randomized_true_step = true_step + np.random.randint(-343, 343) # 343 is roughly 1/3 of an hour in steps, so people can be up to 20 mins early or late when switching activities
+                    randomized_true_step = 0
+                    if j == 0:
+                        # Then we can't be early for state change (since daily step number would be negative, it starts at 0 each day), allow people to be twice as late
+                        randomized_true_step = true_step + np.random.randint(0, 686)
+                    else:
+                        randomized_true_step = true_step + np.random.randint(-343, 343) # 343 is roughly 1/3 of an hour in steps, so people can be up to 20 mins early or late when switching activities
+                    
                     daily_steps.append(randomized_true_step)
                     daily_ids.append((cur_state, next_state))
                     cur_state = next_state
-            state_change_steps.append(deepcopy(np.asarray(daily_steps)))
-            state_change_ids.append(deepcopy(np.asarray(daily_ids)))
+            state_change_steps.append((np.asarray(daily_steps)))
+            state_change_ids.append((np.asarray(daily_ids)))
 
-        self.state_change_steps = deepcopy(np.asarray(state_change_steps, dtype=object))
-        self.state_change_ids = deepcopy(np.asarray(state_change_ids, dtype=object))
+        self.state_change_steps = (np.asarray(state_change_steps, dtype=object))
+        self.state_change_ids = (np.asarray(state_change_ids, dtype=object))
         
         return
 

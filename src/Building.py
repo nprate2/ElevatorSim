@@ -48,4 +48,4 @@ class Building:
     """
     def generate_elevators(self, elevator_starting_floors, elevator_capacity, elevator_steps_per_stop):
         for i in range(len(elevator_starting_floors)):
-            self.elevators.append(Elevator(id=i, capacity=elevator_capacity, cur_floor=1, steps_per_stop=elevator_steps_per_stop))
+            self.elevators.append(Elevator(id=i, capacity=elevator_capacity, cur_floor=elevator_starting_floors[i], steps_per_stop=elevator_steps_per_stop))

@@ -103,10 +103,6 @@ class TestSimulation(unittest.TestCase):
         active_elevator = 0
         idle_elevator = 1
 
-        print("\nHERE")
-        print(len(self.building.floors))
-        print(len(self.building.floors[0].people_on_floor))
-        print("\n")
         # Set one person to be waiting for an elevator
         person = self.building.floors[waiting_floor].people_on_floor[0]
         self.building.floors[waiting_floor].people_going_up.append(person)
@@ -203,10 +199,14 @@ class TestSimulation(unittest.TestCase):
 
         self.assertEqual(0, len(self.building.floors[0].people_going_up))
         self.assertEqual(person_going_up, self.building.elevators[0].people_by_destination[person_going_up.dest_floor][0])
+
+        self.assertEqual(1, len(self.building.elevators[0].up_stops))
         self.assertEqual(person_going_up.dest_floor, self.building.elevators[0].up_stops[0])
 
         self.assertEqual(0, len(self.building.floors[1].people_going_down))
         self.assertEqual(person_going_down, self.building.elevators[1].people_by_destination[person_going_down.dest_floor][0])
+
+        self.assertEqual(1, len(self.building.elevators[1].down_stops))
         self.assertEqual(person_going_down.dest_floor, self.building.elevators[1].down_stops[0])
 
 
@@ -232,8 +232,11 @@ class TestSimulation(unittest.TestCase):
         Simulation.handle_offload(self.building, self.building.elevators[1])
 
         self.assertEqual(0, len(self.building.elevators[0].people_by_destination.keys()))
+        self.assertEqual(1, len(self.building.elevators[0].people_by_destination.keys()))
         self.assertEqual(person1, self.building.floors[0].people_on_floor[0])
+
         self.assertEqual(0, len(self.building.elevators[1].people_by_destination.keys()))
+        self.assertEqual(1, len(self.building.elevators[0].people_by_destination.keys()))
         self.assertEqual(person2, self.building.floors[1].people_on_floor[0])
         return
 
