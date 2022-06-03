@@ -1,3 +1,4 @@
+from copy import deepcopy
 from Floor import Floor
 from Elevator import Elevator
 from ElevatorAlgorithm import ElevatorAlgorithm
@@ -15,6 +16,11 @@ class Building:
     floors_new_down_button = []
 
     def __init__(self, floor_populations, building_dest_floors_by_state_name, elevator_starting_floors, elevator_capacity, elevator_algorithm, elevator_steps_per_stop):
+        self.floors = deepcopy(self.floors)
+        self.elevators = deepcopy(self.elevators) 
+        self.floors_new_down_button = deepcopy(self.floors_new_down_button)
+        self.floors_new_up_button = deepcopy(self.floors_new_up_button)
+        
         self.generate_floors(floor_populations, building_dest_floors_by_state_name)
         self.generate_elevators(elevator_starting_floors, elevator_capacity, elevator_steps_per_stop)
         self.elevator_algorithm = ElevatorAlgorithm(elevator_algorithm)

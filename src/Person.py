@@ -60,8 +60,8 @@ class Person:
                     daily_steps.append(randomized_true_step)
                     daily_ids.append((cur_state, next_state))
                     cur_state = next_state
-            state_change_steps.append(np.asarray(daily_steps))
-            state_change_ids.append(np.asarray(daily_ids))
+            state_change_steps.append(deepcopy(np.asarray(daily_steps)))
+            state_change_ids.append(deepcopy(np.asarray(daily_ids)))
 
         self.state_change_steps = deepcopy(np.asarray(state_change_steps, dtype=object))
         self.state_change_ids = deepcopy(np.asarray(state_change_ids, dtype=object))

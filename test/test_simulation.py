@@ -15,7 +15,7 @@ simple_dest_floors_by_state_name = {
     "chores": [], # Chores only happen at person's home floor
     "study": [1], # Send to ground floor
 }
-simple_elevator_starting_floors = [1, 1] # Two elevators, both starting at ground floor
+simple_elevator_starting_floors = [0, 0] # Two elevators, both starting at ground floor
 simple_elevator_capacity = 10
 simple_elevator_algorithm = "stay_where_stopped"
 simple_elevator_steps_per_stop = 5 # Num simulation steps an elevator must pass (doing nothing) each time it stops to onload or offload passengers
@@ -39,12 +39,12 @@ class TestSimulation(unittest.TestCase):
     def test_state_change_going_down(self):
         test_floor = 1
         person = self.building.floors[test_floor].people_on_floor[0] # Grab the only person on the 2nd floor
-        Simulation.state_change_going_down(self.building, 1, person)
+        Simulation.state_change_going_down(self.building, test_floor, person)
 
         self.assertEqual(0, len(self.building.floors[test_floor].people_on_floor))
         self.assertEqual(person, self.building.floors[test_floor].people_going_down[0])
         self.assertTrue(self.building.floors[test_floor].is_down_pressed)
-        self.assertEqual(1, self.building.floors_new_down_button[0])
+        self.assertEqual(test_floor, self.building.floors_new_down_button[0])
         return
 
     """
@@ -55,34 +55,34 @@ class TestSimulation(unittest.TestCase):
     """
     def test_state_change_going_up(self):
         test_floor = 0
-        person = self.building.floors[test_floor].people_on_floor[0] # Grab the only person on the 2nd floor
-        Simulation.state_change_going_up(self.building, 1, person)
+        person = self.building.floors[test_floor].people_on_floor[0] # Grab the only person on the 1nd floor
+        Simulation.state_change_going_up(self.building, test_floor, person)
 
         self.assertEqual(0, len(self.building.floors[test_floor].people_on_floor))
         self.assertEqual(person, self.building.floors[test_floor].people_going_up[0])
         self.assertTrue(self.building.floors[test_floor].is_up_pressed)
-        self.assertEqual(1, self.building.floors_new_up_button[0])
+        self.assertEqual(test_floor, self.building.floors_new_up_button[0])
         return
 
     def test_handle_state_change(self):
         day = 0
-        home_floor_id = 2
-        person = self.building.floors[home_floor_id].people_on_floor[0] # Only person on second floor
+        home_floor_id = 1
+        person = self.building.floors[home_floor_id].people_on_floor[0] # Only person on 2nd floor
         person.state_change_ids[day][0] = (2, 1) # Set first state change to change from sleep to class
-        person.dest_floors_by_state_name["class"] = [1] # Ensure that the only dest floor for class for this person is floor 1
+        person.dest_floors_by_state_name["class"] = [0] # Ensure that the only dest floor for class for this person is 1st floor
         
         # Ensure the test data we just set is properly reflected within the Building
-        self.assertEqual(2, self.building.floors[home_floor_id-1].people_on_floor[0].state_change_ids[day][0, 0])
-        self.assertEqual(1, self.building.floors[home_floor_id-1].people_on_floor[0].state_change_ids[day][0, 1])
-        self.assertEqual([1], self.building.floors[home_floor_id-1].people_on_floor[0].dest_floors_by_state_name["class"])
+        self.assertEqual(2, self.building.floors[home_floor_id].people_on_floor[0].state_change_ids[day][0, 0])
+        self.assertEqual(1, self.building.floors[home_floor_id].people_on_floor[0].state_change_ids[day][0, 1])
+        self.assertEqual([0], self.building.floors[home_floor_id].people_on_floor[0].dest_floors_by_state_name["class"])
 
         Simulation.handle_state_change(self.building, day, person) # The function we are testing
         # What should happen: Person needs to travel down to first floor. Person should be removed from people_on_floor and added to people_going_down on the same floor.
         # This is the first person to be added to people_going_down, so the floor's is_down_pressed should be updated and the floor id should be added to the building's floors_new_down_button.
-        self.assertEqual([], self.building.floors[home_floor_id-1].people_on_floor)
-        self.assertEqual(1, len(self.building.floors[home_floor_id-1].people_going_down))
-        self.assertEqual(person, self.building.floors[home_floor_id-1].people_going_down[0])
-        self.assertEqual(True, self.building.floors[home_floor_id-1].is_down_pressed)
+        self.assertEqual([], self.building.floors[home_floor_id].people_on_floor)
+        self.assertEqual(1, len(self.building.floors[home_floor_id].people_going_down))
+        self.assertEqual(person, self.building.floors[home_floor_id].people_going_down[0])
+        self.assertEqual(True, self.building.floors[home_floor_id].is_down_pressed)
         self.assertEqual(home_floor_id, self.building.floors_new_down_button[0])
         
         return 
@@ -103,9 +103,13 @@ class TestSimulation(unittest.TestCase):
         active_elevator = 0
         idle_elevator = 1
 
+        print("\nHERE")
+        print(len(self.building.floors))
+        print(len(self.building.floors[0].people_on_floor))
+        print("\n")
         # Set one person to be waiting for an elevator
         person = self.building.floors[waiting_floor].people_on_floor[0]
-        self.building.floors.people_going_up.append(person)
+        self.building.floors[waiting_floor].people_going_up.append(person)
         self.building.floors[waiting_floor].people_on_floor.remove(person)
 
         # Set one person to be traveling on an elevator
@@ -181,7 +185,7 @@ class TestSimulation(unittest.TestCase):
         self.building.floors[0].people_on_floor.remove(person_going_up)
         self.building.floors[0].people_going_up.append(person_going_up)
 
-        person_going_down = self.building.floors[1].people_on_floor[1]
+        person_going_down = self.building.floors[1].people_on_floor[0]
         person_going_down.dest_floor = 0
         self.building.floors[1].people_on_floor.remove(person_going_down)
         self.building.floors[1].people_going_down.append(person_going_down)
@@ -216,10 +220,12 @@ class TestSimulation(unittest.TestCase):
     def test_handle_offload(self):
         person1 = self.building.floors[0].people_on_floor[0]
         self.building.floors[0].people_on_floor.remove(person1)
+        self.building.elevators[0].cur_floor = 0
         self.building.elevators[0].people_by_destination[0] = [person1]
 
-        person2 = self.building.floors[1].people_on_floor[1]
+        person2 = self.building.floors[1].people_on_floor[0]
         self.building.floors[1].people_on_floor.remove(person2)
+        self.building.elevators[1].cur_floor = 1
         self.building.elevators[1].people_by_destination[1] = [person2]
 
         Simulation.handle_offload(self.building, self.building.elevators[0])
