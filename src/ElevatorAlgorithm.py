@@ -43,16 +43,12 @@ Returns:
 assigned - Boolean representing if the requested stop was successfully assigned.
 """
 def assign_stop_SWS(elevators, floor_id, direction):
-    print("\nAssign stop SWS\n")
     # Check if there is an idle elevator on the correct floor
     for i in range(len(elevators)):
         if not elevators[i].is_moving and elevators[i].cur_floor == floor_id:
-            print("Correct floor elevator:", i)
             if direction == "up":
-                print("up")
                 elevators[i].up_stops.append(floor_id)
             else:
-                print("down")
                 elevators[i].down_stops.append(floor_id)
             return True
 
@@ -71,7 +67,6 @@ def assign_stop_SWS(elevators, floor_id, direction):
             elevators_idle.append(elevators[i])
     
     if len(elevators_moving_towards) != 0:
-        print("moving towards elevator")
         # Assign the nearest elevator moving towards
         min_dist = np.inf
         min_idx = 0
@@ -86,7 +81,6 @@ def assign_stop_SWS(elevators, floor_id, direction):
             elevators_moving_towards[min_idx].down_stops.append(floor_id)
 
     elif len(elevators_idle) != 0:
-        print("idle elevators")
         # If there are no elevators moving towards, assign nearest idle elevator
         min_dist = np.inf
         min_idx = 0
@@ -100,7 +94,6 @@ def assign_stop_SWS(elevators, floor_id, direction):
         else:
             elevators_idle[min_idx].down_stops.append(floor_id)
     else:
-        print("no elevators, not handling")
         # If there are no elevators moving towards and no idle elevators, this stop is not assigned yet. It will be assigned at a later simulation step when one of those two conditions are met.
         return False
     #print("ret true")
