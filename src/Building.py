@@ -15,14 +15,25 @@ class Building:
     floors_new_up_button = []
     floors_new_down_button = []
 
-    def __init__(self, floor_populations, building_dest_floors_by_state_name, elevator_starting_floors, elevator_capacity, elevator_algorithm, elevator_steps_per_stop):
+    """
+    Initializes a Building object.
+
+    Takes:
+    floor_populations - list of integers representing the number of residents on each Floor.
+    building_dest_floors_by_state_name - dictionary where keys are strings representing state names for Persons and values are lists of integers representing Floor ids that said state can occur on.
+    elevator_algorithm - string representing the scheduling algorithm to be used within the Building
+    elevator_starting_floors - list of integers representing Floor ids where each Elevator will "begin" at the start of the simulation.
+    elevator_capacities - list of integers representing the maximum amount of Persons that can be onboard each Elevator at any given time.
+    elevator_steps_per_stops - list of integers representing the number of steps each Elevator takes to onload/offload/stop at a floor.
+    """
+    def __init__(self, floor_populations, building_dest_floors_by_state_name, elevator_algorithm, elevator_starting_floors, elevator_capacities, elevator_steps_per_stops):
         self.floors = deepcopy(self.floors)
         self.elevators = deepcopy(self.elevators) 
         self.floors_new_down_button = deepcopy(self.floors_new_down_button)
         self.floors_new_up_button = deepcopy(self.floors_new_up_button)
         
         self.generate_floors(floor_populations, building_dest_floors_by_state_name)
-        self.generate_elevators(elevator_starting_floors, elevator_capacity, elevator_steps_per_stop)
+        self.generate_elevators(elevator_starting_floors, elevator_capacities, elevator_steps_per_stops)
         self.elevator_algorithm = ElevatorAlgorithm(elevator_algorithm)
 
     """
@@ -43,12 +54,12 @@ class Building:
 
     Takes:
     elevator_starting_floors - list of integers representing starting Floor id of each elevator in a Building.
-    elevator_capacity - integer representing the maximum amount of Persons that can be onboard an elevator at any given time.
-    elevator_algorithm - String representing the algorithm to determine how an elevator decides to move.
+    elevator_capacities - list of integers representing the maximum amount of Persons that can be onboard each Elevator at any given time.
+    elevator_steps_per_stops - list of integers representing the number of steps each Elevator takes to onload/offload/stop at a floor.
     """
-    def generate_elevators(self, elevator_starting_floors, elevator_capacity, elevator_steps_per_stop):
+    def generate_elevators(self, elevator_starting_floors, elevator_capacities, elevator_steps_per_stops):
         for i in range(len(elevator_starting_floors)):
-            self.elevators.append(Elevator(id=i, capacity=elevator_capacity, cur_floor=elevator_starting_floors[i], steps_per_stop=elevator_steps_per_stop))
+            self.elevators.append(Elevator(id=i, capacity=elevator_capacities[i], starting_floor=elevator_starting_floors[i], steps_per_stop=elevator_steps_per_stops[i]))
             # Initialize each Elevator's people_by_destination dictionary with deepcopied empty lists (can't do this within an Elevator class because it doesn't know how many floors there are)
             for j in range(len(self.floors)):
                 self.elevators[i].people_by_destination[j] = deepcopy([])

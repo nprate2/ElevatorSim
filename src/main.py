@@ -21,12 +21,12 @@ HERE_dest_floors_by_state_name = {
     "chores": [], # Chores only happen at person's home floor
     "study": [3], # HERE study rooms are on fourth floor
 }
-HERE_elevator_starting_floors = [0, 0, 0]
-HERE_elevator_capacity = 10
 HERE_elevator_algorithm = "stay_where_stopped"
-HERE_elevator_steps_per_stop = 5 # Num simulation steps an elevator must pass (doing nothing) each time it stops to onload or offload passengers
+HERE_elevator_starting_floors = [0, 0, 0]
+HERE_elevator_capacities = [10, 10, 10]
+HERE_elevator_steps_per_stops = [5, 5, 5] # Num simulation steps an elevator must pass (doing nothing) each time it stops to onload or offload passengers
 
-building = Building(HERE_floor_populations, HERE_dest_floors_by_state_name, HERE_elevator_starting_floors, HERE_elevator_capacity, HERE_elevator_algorithm, HERE_elevator_steps_per_stop)
+building = Building(HERE_floor_populations, HERE_dest_floors_by_state_name, HERE_elevator_algorithm, HERE_elevator_starting_floors, HERE_elevator_capacities, HERE_elevator_steps_per_stops)
 
 """
 people = []

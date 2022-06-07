@@ -9,7 +9,7 @@ class TestElevator(unittest.TestCase):
     def setUpClass(self):
         self.elevators = []
         for i in range(10):
-            self.elevators.append(Elevator(id=i, capacity=i, cur_floor=i, steps_per_stop=i))
+            self.elevators.append(Elevator(id=i, capacity=i, starting_floor=i, steps_per_stop=i))
         return
 
     def test_unique_memory(self):

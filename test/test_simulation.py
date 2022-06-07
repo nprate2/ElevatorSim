@@ -15,10 +15,10 @@ simple_dest_floors_by_state_name = {
     "chores": [], # Chores only happen at person's home floor
     "study": [0], # Send to ground floor
 }
-simple_elevator_starting_floors = [0, 0] # Two elevators, both starting at ground floor
-simple_elevator_capacity = 10
 simple_elevator_algorithm = "stay_where_stopped"
-simple_elevator_steps_per_stop = 5 # Num simulation steps an elevator must pass (doing nothing) each time it stops to onload or offload passengers
+simple_elevator_starting_floors = [0, 0] # Two elevators, both starting at ground floor
+simple_elevator_capacities = [10, 10, 10]
+simple_elevator_steps_per_stops = [5, 5, 5] # Num simulation steps an elevator must pass (doing nothing) each time it stops to onload or offload passengers
 
 class TestSimulation(unittest.TestCase):
     @classmethod
@@ -28,7 +28,7 @@ class TestSimulation(unittest.TestCase):
     
     def setUp(self):
         # Runs before each test
-        self.building = Building(simple_floor_populations, simple_dest_floors_by_state_name, simple_elevator_starting_floors, simple_elevator_capacity, simple_elevator_algorithm, simple_elevator_steps_per_stop)
+        self.building = Building(simple_floor_populations, simple_dest_floors_by_state_name, simple_elevator_algorithm, simple_elevator_starting_floors, simple_elevator_capacities, simple_elevator_steps_per_stops)
 
     """
     state_change_going_down(building, floor_id, person):

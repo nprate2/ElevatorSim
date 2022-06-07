@@ -23,10 +23,10 @@ class Elevator:
     steps_idle = np.zeros((7,))
     steps_active = np.zeros((7,))
 
-    def __init__(self, id, capacity, cur_floor, steps_per_stop):
+    def __init__(self, id, capacity, starting_floor, steps_per_stop):
         self.id = id
         self.capacity = capacity
-        self.cur_floor = cur_floor
+        self.cur_floor = starting_floor
         self.steps_per_stop = steps_per_stop
         # Ensure memory is unique per instance
         self.people_by_destination = deepcopy(self.people_by_destination)
