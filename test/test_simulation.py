@@ -6,14 +6,14 @@ from src_imports import Person
 
 simple_floor_populations = [1, 1] # Two floor building with one resident on each floor
 simple_dest_floors_by_state_name = {
-    "freetime": [1,2], # Person can go anywhere during freetime
-    "class": [1], # Must go to ground floor for in person class
+    "freetime": [0, 1], # Person can go anywhere during freetime
+    "class": [0], # Must go to ground floor for in person class
     "sleep": [], # Sleep only happens at person's home floor
-    "meal": [1], # Must go to ground floor to eat out / pickup food
-    "exercise": [1], # Send to ground floor
-    "shop": [1], # Must go to ground floor to go to store
+    "meal": [0], # Must go to ground floor to eat out / pickup food
+    "exercise": [0], # Send to ground floor
+    "shop": [0], # Must go to ground floor to go to store
     "chores": [], # Chores only happen at person's home floor
-    "study": [1], # Send to ground floor
+    "study": [0], # Send to ground floor
 }
 simple_elevator_starting_floors = [0, 0] # Two elevators, both starting at ground floor
 simple_elevator_capacity = 10
@@ -242,13 +242,99 @@ class TestSimulation(unittest.TestCase):
         return
 
     def test_update_active_up_elevator(self):
+        # Test Elevator's cur_floor is not within its up_stops
+        up_elevator = self.building.elevators[0]
+        up_elevator.is_moving = True
+        up_elevator.is_moving_up = True
+        up_elevator.cur_floor = 0
+        up_elevator.up_stops.append(1)
+
+        Simulation.update_active_up_elevator(self.building, up_elevator) # This should move the elevator from 1st to 2nd floor (0 to 1 idxs)
+        #up_elevator = self.building.elevators[0]
+        self.assertEqual(1, up_elevator.cur_floor) # Elevator's cur_floor should be the 2nd floor
+        self.assertEqual(1, up_elevator.up_stops[0]) # 2nd floor should still be in up_stops
+        self.assertEqual(0, up_elevator.stopped_steps) # Should be zero since Elevator hasn't stopped
+
+        Simulation.update_active_up_elevator(self.building, up_elevator) # This should handle and remove 2nd floor from up_stops
+        #up_elevator = self.building.elevators[0]
+        self.assertEqual(up_elevator.stopped_steps, up_elevator.steps_per_stop) # The Elevator stopped, so stopped_steps should have been set
+        self.assertEqual(0, len(up_elevator.up_stops)) # Stops get removed from up_stops as soon as they are handled
+
+        Simulation.update_active_up_elevator(self.building, up_elevator) # This should decrement stopped_steps
+        #up_elevator
+        self.assertEqual(up_elevator.steps_per_stop - 1, up_elevator.stopped_steps) # stopped_steps should be one less than steps_per_stop since it got decremented
+        up_elevator.stopped_steps = 1 # Set stopped_steps to only 1 step remaining
+
+        Simulation.update_active_up_elevator(self.building, up_elevator) # Should set Elevator to be idle since it has no more up_stops or down_stops
+        self.assertFalse(up_elevator.is_moving)
+
+        up_elevator.stopped_steps = 1 # Set stopped_steps to only 1 step remaining, Elevator to be moving up, and Elevator to have 1st floor in down_stops
+        up_elevator.is_moving = True
+        up_elevator.is_moving_up = True
+        up_elevator.down_stops.append(0)
+
+        Simulation.update_active_up_elevator(self.building, up_elevator) # Should set Elevator to be active and moving down since it has no more up_stops but does have down_stops
+        self.assertTrue(up_elevator.is_moving)
+        self.assertFalse(up_elevator.is_moving_up)
+
         return
+
+
     def test_update_active_down_elevator(self):
+        # Test Elevator's cur_floor is not within its up_stops
+        down_elevator = self.building.elevators[0]
+        down_elevator.is_moving = True
+        down_elevator.is_moving_up = False
+        down_elevator.cur_floor = 1
+        down_elevator.down_stops.append(0)
+
+        Simulation.update_active_down_elevator(self.building, down_elevator) # This should move the elevator from 2nd to 1st floor (1 to 0 idxs)
+        #down_elevator = self.building.elevators[0]
+        self.assertEqual(0, down_elevator.cur_floor) # Elevator's cur_floor should be the 1st floor
+        self.assertEqual(0, down_elevator.down_stops[0]) # 1st floor should still be in down_stops
+        self.assertEqual(0, down_elevator.stopped_steps) # Should be zero since Elevator hasn't stopped
+
+        Simulation.update_active_down_elevator(self.building, down_elevator) # This should handle and remove 1st floor from down_stops
+        #down_elevator = self.building.elevators[0]
+        self.assertEqual(down_elevator.stopped_steps, down_elevator.steps_per_stop) # The Elevator stopped, so stopped_steps should have been set
+        self.assertEqual(0, len(down_elevator.down_stops)) # Stops get removed from down_stops as soon as they are handled
+
+        Simulation.update_active_down_elevator(self.building, down_elevator) # This should decrement stopped_steps
+        #down_elevator
+        self.assertEqual(down_elevator.steps_per_stop - 1, down_elevator.stopped_steps) # stopped_steps should be one less than steps_per_stop since it got decremented
+        down_elevator.stopped_steps = 1 # Set stopped_steps to only 1 step remaining
+
+        Simulation.update_active_down_elevator(self.building, down_elevator) # Should set Elevator to be idle since it has no more down_stops or up_stops
+        self.assertFalse(down_elevator.is_moving)
+
+        down_elevator.stopped_steps = 1 # Set stopped_steps to only 1 step remaining, Elevator to be moving down, and Elevator to have 2nd floor in up_stops
+        down_elevator.is_moving = True
+        down_elevator.is_moving_up = False
+        down_elevator.up_stops.append(1)
+
+        Simulation.update_active_down_elevator(self.building, down_elevator) # Should set Elevator to be active and moving up since it has no more down_stops but does have up_stops
+        self.assertTrue(down_elevator.is_moving)
+        self.assertTrue(down_elevator.is_moving_up)
+
         return
+
+    # Covered by the two test above
     def test_update_active_elevators(self):
         return
 
     def test_update_idle_elevators(self):
+        up_elevator = self.building.elevators[0]
+        down_elevator = self.building.elevators[1]
+
+        up_elevator.up_stops.append(1)
+        down_elevator.down_stops.append(0)
+
+        Simulation.update_idle_elevators(self.building, self.building.elevators)
+
+        self.assertTrue(up_elevator.is_moving)
+        self.assertTrue(up_elevator.is_moving_up)
+        self.assertTrue(down_elevator.is_moving)
+        self.assertFalse(down_elevator.is_moving_up)
         return
     
     # Covered by two tests above

@@ -12,16 +12,16 @@ state_names = ["freetime", "class", "sleep", "meal", "exercise", "shop", "chores
 
 HERE_floor_populations = [0, 0, 0, 0, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100]
 HERE_dest_floors_by_state_name = {
-    "freetime": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15], # Person can go anywhere during freetime
-    "class": [1], # Must go to ground floor for in person class
+    "freetime": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14], # Person can go anywhere during freetime
+    "class": [0], # Must go to ground floor for in person class
     "sleep": [], # Sleep only happens at person's home floor
-    "meal": [1], # Must go to ground floor to eat out / pickup food
-    "exercise": [2], # HERE gym is on second floor
-    "shop": [1], # Must go to ground floor to go to store
+    "meal": [0], # Must go to ground floor to eat out / pickup food
+    "exercise": [1], # HERE gym is on second floor
+    "shop": [0], # Must go to ground floor to go to store
     "chores": [], # Chores only happen at person's home floor
-    "study": [4], # HERE study rooms are on fourth floor
+    "study": [3], # HERE study rooms are on fourth floor
 }
-HERE_elevator_starting_floors = [1, 1, 1]
+HERE_elevator_starting_floors = [0, 0, 0]
 HERE_elevator_capacity = 10
 HERE_elevator_algorithm = "stay_where_stopped"
 HERE_elevator_steps_per_stop = 5 # Num simulation steps an elevator must pass (doing nothing) each time it stops to onload or offload passengers

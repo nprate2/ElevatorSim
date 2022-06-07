@@ -274,7 +274,7 @@ def update_active_up_elevator(building, elevator):
                     # Then this Elevator switches direction of travel (from up to down)
                     elevator.is_moving_up = False
             else:
-                # More up stope
+                # More up stops
                 elevator.cur_floor += 1 # Increment the cur_floor to signify moving up a floor
         return # If stopped, the elevator does nothing.
     
@@ -331,9 +331,6 @@ def update_active_down_elevator(building, elevator):
         # Handle people that want to offload
         handle_offload(building, elevator)
 
-        # Remove the handled floor from up_stops
-        elevator.up_stops.remove(elevator.cur_floor)
-
         # Remove the handled floor from down_stops
         elevator.down_stops.remove(elevator.cur_floor)
     else:
@@ -371,13 +368,13 @@ def update_idle_elevators(building, idle_elevators):
         idle_elevator = idle_elevators[i]
         if len(idle_elevator.up_stops) != 0:
             # Set Elevator to active going up
-            print("set elev " + str(idle_elevator.id) + " active")
+            print("set elev " + str(idle_elevator.id) + " active going up")
             idle_elevator.is_moving = True
             idle_elevator.is_moving_up = True
 
         elif len(idle_elevator.down_stops) != 0:
             # Set Elevator to active doing down
-            print("set elev " + str(idle_elevator.id) + " idle")
+            print("set elev " + str(idle_elevator.id) + " active going down")
             idle_elevator.is_moving = True
             idle_elevator.is_moving_up = False
 
