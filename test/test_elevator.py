@@ -12,7 +12,10 @@ class TestElevator(unittest.TestCase):
             self.elevators.append(Elevator(id=i, capacity=i, starting_floor=i, steps_per_stop=i))
         return
 
-    def test_unique_memory(self):
+    """
+    Tests that the Elevator() constructor produces an Elevator as expected.
+    """
+    def test_generation(self):
         for i in range(len(self.elevators)):
             # Check that parameters are set correctly for each elevator
             self.assertEqual(i, self.elevators[i].id)
@@ -20,16 +23,21 @@ class TestElevator(unittest.TestCase):
             self.assertEqual(i, self.elevators[i].cur_floor)
             self.assertEqual(i, self.elevators[i].steps_per_stop)
 
-            # Check that people_by_destination is unique for each elevator (adding a key in one won't add it to another)
+    """
+    Asserts that people_by_destination, up_stops, down_stops, steps_idle, and steps_active use unique memory for each Elevator
+    """
+    def test_unique_memory(self):
+        for i in range(len(self.elevators)):
+            # Check that people_by_destination is unique for each Elevator (adding a key in one won't add it to another)
             self.elevators[i].people_by_destination["test"] = 0
             self.assertFalse("test" in self.elevators[i-1].people_by_destination.keys())
             self.elevators[i].people_by_destination.pop("test") # Revert for next iteration
 
-            # Check that up_stops, down_stops, steps_idle, and steps_active are unique for each elevator
-            self.elevators[i].up_stops.append(0)
-            self.elevators[i].down_stops.append(0)
-            self.elevators[i].steps_idle[0] += 1
-            self.elevators[i].steps_active[0] += 1
+            # Check that up_stops, down_stops, steps_idle, and steps_active are unique for each Elevator
+            self.elevators[i].up_stops.append(i)
+            self.elevators[i].down_stops.append(i)
+            self.elevators[i].steps_idle[0] = 1
+            self.elevators[i].steps_active[0] = 1
 
             self.assertNotEqual(len(self.elevators[i].up_stops), len(self.elevators[i-1].up_stops))
             self.assertNotEqual(len(self.elevators[i].down_stops), len(self.elevators[i-1].down_stops))

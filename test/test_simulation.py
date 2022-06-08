@@ -21,11 +21,9 @@ simple_elevator_capacities = [10, 10, 10]
 simple_elevator_steps_per_stops = [5, 5, 5] # Num simulation steps an elevator must pass (doing nothing) each time it stops to onload or offload passengers
 
 class TestSimulation(unittest.TestCase):
-    @classmethod
-    def setUpClass(self):
-        # Runs once before all tests
-        return
-    
+    """
+    Before each test, generate a Building
+    """
     def setUp(self):
         # Runs before each test
         self.building = Building(simple_floor_populations, simple_dest_floors_by_state_name, simple_elevator_algorithm, simple_elevator_starting_floors, simple_elevator_capacities, simple_elevator_steps_per_stops)
@@ -64,6 +62,9 @@ class TestSimulation(unittest.TestCase):
         self.assertEqual(test_floor, self.building.floors_new_up_button[0])
         return
 
+    """
+    Asserts that handle_state_change correctly updates a Building when a Person needs to change state.
+    """
     def test_handle_state_change(self):
         day = 0
         home_floor_id = 1
@@ -241,6 +242,9 @@ class TestSimulation(unittest.TestCase):
         self.assertEqual(person2, self.building.floors[1].people_on_floor[0])
         return
 
+    """
+    Asserts that update_active_up_elevator correctly updates an active Elevator.
+    """
     def test_update_active_up_elevator(self):
         # Test Elevator's cur_floor is not within its up_stops
         up_elevator = self.building.elevators[0]
@@ -279,7 +283,9 @@ class TestSimulation(unittest.TestCase):
 
         return
 
-
+    """
+    Asserts that update_active_down_elevator correctly updates an active Elevator.
+    """
     def test_update_active_down_elevator(self):
         # Test Elevator's cur_floor is not within its up_stops
         down_elevator = self.building.elevators[0]
@@ -322,6 +328,9 @@ class TestSimulation(unittest.TestCase):
     def test_update_active_elevators(self):
         return
 
+    """
+    Asserts that update_idle_elevators correctly updates an idle Elevators.
+    """
     def test_update_idle_elevators(self):
         up_elevator = self.building.elevators[0]
         down_elevator = self.building.elevators[1]

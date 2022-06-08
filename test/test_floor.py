@@ -16,6 +16,9 @@ test_dest_floors_by_state_name = {
 }
 
 class TestSchedule(unittest.TestCase):
+    """
+    Generate 10 Floors before each test.
+    """
     @classmethod
     def setUpClass(self):
         #print("-----TESTING PERSON-----")
@@ -25,6 +28,18 @@ class TestSchedule(unittest.TestCase):
             self.floors.append(floor)
         return
 
+    """
+    Asserts the Floor() constructor produces a Floor object as expected.
+    """
+    def test_generation(self):
+        # Ensure id, num_residents, and people_on_floor generate correctly for each floor
+        for i in range(len(self.floors)):
+            self.assertEqual(i, self.floors[i].id)
+            self.assertEqual(i+1, self.floors[i].num_residents)
+            self.assertEqual(i+1, len(self.floors[i].people_on_floor))
+    """
+    Asserts people_on_floor, people_going_up, and people_going_down use unique memory for each Floor
+    """
     def test_unique_memory(self):
         # Ensure id, num_residents, and people_on_floor generate correctly for each floor
         for i in range(len(self.floors)):

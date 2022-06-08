@@ -19,47 +19,47 @@ test_dest_floors_by_state_name = {
 }
 
 class TestSchedule(unittest.TestCase):
+    """
+    Before each test, generate a list of 10 Persons
+    """
     @classmethod
-    def setUpClass(cls):
-        #print("-----TESTING PERSON-----")
-        return
-
-    def test_generation(self):
-        #print(".....generating 100 people.....")
-        for i in (range(100)):
+    def setUpClass(self):
+        self.people = []
+        for i in (range(10)):
             person = Person(id=i, home_floor=i, prob_having_visitors=0, avg_num_visitors=0, building_dest_floors_by_state_name=test_dest_floors_by_state_name)
-    
-    def test_unique_memory(self):
-        #print(".....testing unique memory.....")
-        people = []
-        # Set all fields to i and leave building dest floors empty for each state
-        for i in range(10):
-            person = Person(id=i, home_floor=i, prob_having_visitors=i, avg_num_visitors=i, building_dest_floors_by_state_name=test_dest_floors_by_state_name)
             person.steps_waiting[0] = i
             person.steps_traveling[0] = i
-            people.append(person)
+        return
 
-        # Ensure all fields are still set to i after multiple people are generated. Also check that class, sleep, meal, exercise, chores, and study states within dest floors contain i (since i is the home floor)
-        for i in range(10):
-            self.assertEqual(i, people[i].id)
-            self.assertEqual(i, people[i].home_floor)
-            self.assertEqual(i, people[i].prob_having_visitors)
-            self.assertEqual(i, people[i].avg_num_visitors)
-            self.assertEqual(i, people[i].steps_waiting[0])
-            self.assertEqual(i, people[i].steps_traveling[0])
-            self.assertEqual([i], people[i].dest_floors_by_state_name["class"])
-            self.assertEqual([i], people[i].dest_floors_by_state_name["sleep"])
-            self.assertEqual([i], people[i].dest_floors_by_state_name["meal"])
-            self.assertEqual([i], people[i].dest_floors_by_state_name["exercise"])
-            self.assertEqual([i], people[i].dest_floors_by_state_name["chores"])
-            self.assertEqual([i], people[i].dest_floors_by_state_name["study"])
+    """
+    Assert the Person() constructor produces a Person as expected.
+    """
+    def test_generation(self):
+        for i in (range(len(self.people))):
+            self.assertEqual(i, self.people[i].id)
+            self.assertEqual(i, self.people[i].home_floor)
+            self.assertEqual(i, self.people[i].cur_floor)
+            self.assertEqual(i, self.people[i].prob_having_visitors)
+            self.assertEqual(i, self.people[i].avg_num_visitors)
+            self.assertEqual(i, self.people[i].steps_waiting[0])
+            self.assertEqual(i, self.people[i].steps_traveling[0])
+
             # Length of state change steps and state change ids should be equal, since each id corresponds to a state change
-            self.assertEqual(len(people[i].state_change_steps), len(people[i].state_change_ids))
-            # Unless memory is not unique, people will always have unique state change steps and corresponding ids, as well as unique schedules
-            self.assertFalse(np.array_equal(people[i].state_change_steps, people[i-1].state_change_steps))
-            self.assertFalse(np.array_equal(people[i].state_change_ids, people[i-1].state_change_ids))
-            self.assertFalse(np.array_equal(people[i].schedule, people[i-1].schedule))
+            self.assertEqual(len(self.people[i].state_change_steps), len(self.people[i].state_change_ids))
+    """
+    Assert that state_change_steps, state_change_ids, and schedule use unique memory for each Person
+    """
+    def test_unique_memory(self):
+        # Ensure all fields are still set to i after multiple people are generated. Also check that class, sleep, meal, exercise, chores, and study states within dest floors contain i (since i is the home floor)
+        for i in range(len(self.people)):
+            # Unless memory is not unique, self.people will always have unique state change steps and corresponding ids, as well as unique schedules
+            self.assertFalse(np.array_equal(self.people[i].state_change_steps, self.people[i-1].state_change_steps))
+            self.assertFalse(np.array_equal(self.people[i].state_change_ids, self.people[i-1].state_change_ids))
+            self.assertFalse(np.array_equal(self.people[i].schedule, self.people[i-1].schedule))
 
+    """
+    Assert that generate_state_change_data() performs as expected.
+    """
     def test_generate_state_change_data(self):
         # Test a super simplified schedule case
         simple_schedule = np.zeros((2, 2))
@@ -108,6 +108,16 @@ class TestSchedule(unittest.TestCase):
 
         return
     
-    # Covered within test_unique_memory
+    """
+    Assert that generate_dest_floors_by_state_name performs as expected.
+    """
     def test_generate_dest_floors_by_state_name(self):
+        for i in range(len(self.people)):
+            # Tests that a Person's home floor is one of the destinations for various states
+            self.assertEqual(self.people[i].home_floor, self.people[i].dest_floors_by_state_name["class"])
+            self.assertEqual(self.people[i].home_floor, self.people[i].dest_floors_by_state_name["sleep"])
+            self.assertEqual(self.people[i].home_floor, self.people[i].dest_floors_by_state_name["meal"])
+            self.assertEqual(self.people[i].home_floor, self.people[i].dest_floors_by_state_name["exercise"])
+            self.assertEqual(self.people[i].home_floor, self.people[i].dest_floors_by_state_name["chores"])
+            self.assertEqual(self.people[i].home_floor, self.people[i].dest_floors_by_state_name["study"])
         return

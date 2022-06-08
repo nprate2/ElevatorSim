@@ -26,6 +26,9 @@ class TestElevatorAlgorithm(unittest.TestCase):
         #self.building = Building(simple_floor_populations, simple_dest_floors_by_state_name, simple_elevator_starting_floors, simple_elevator_capacity, simple_elevator_algorithm, simple_elevator_steps_per_stop)
         return
     
+    """
+    Assert the "stay_where_stopped" scheduling algorithm behaves as expected.
+    """
     def test_assign_stop_SWS(self):
         # Test that an idle Elevator on a floor gets assigned the stop
         building = Building(simple_floor_populations, simple_dest_floors_by_state_name, simple_elevator_algorithm, simple_elevator_starting_floors, simple_elevator_capacities, simple_elevator_steps_per_stops)
@@ -48,5 +51,8 @@ class TestElevatorAlgorithm(unittest.TestCase):
 
         return
     
+    """
+    Assert the "return_to_ground" scheduling algorithm behaves as expected.
+    """
     def test_assign_stop_RTG(self):
         return
