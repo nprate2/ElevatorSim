@@ -63,4 +63,26 @@ class Building:
             # Initialize each Elevator's people_by_destination dictionary with deepcopied empty lists (can't do this within an Elevator class because it doesn't know how many floors there are)
             for j in range(len(self.floors)):
                 self.elevators[i].people_by_destination[j] = deepcopy([])
+
+    """
+    Prints the state of a building for debugging purposes.
+    """
+    def print_building_state(self):
+        print("\n-----FLOORS-----\n")
+        for i in range(len(self.floors)):
+            print("Floor:", i)
+            print("People on floor:", len(self.floors[i].people_on_floor))
+            print("People going up:", len(self.floors[i].people_going_up))
+            print("People going down:", len(self.floors[i].people_going_down))
+            print("\n")
+        
+        print("\n-----ELEVATORS-----\n")
+        for i in range(len(self.elevators)):
+            print("Elevator:", i)
+            print("Cur floor:", self.elevators[i].cur_floor)
+            print("Is moving:", self.elevators[i].is_moving)
+            print("Is moving up:", self.elevators[i].is_moving_up)
+            print("Up stops:", self.elevators[i].up_stops)
+            print("Down stops:", self.elevators[i].down_stops)
+            print("\n")
             

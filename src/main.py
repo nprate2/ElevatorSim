@@ -44,6 +44,7 @@ for i in range(1000):
 num_steps_per_day = 24686
 for day in tqdm(range(7)):
     for step in tqdm(range(int(num_steps_per_day))):
+        #building.print_building_state()
         #for i in range(len(building.elevators)):
             #print("elevator up stops", building.elevators[i].up_stops)
             #print("elevator down stops", building.elevators[i].down_stops)
@@ -52,7 +53,7 @@ for day in tqdm(range(7)):
 
         Simulation.update_elevators(building) # Update all Elevators, active and idle. (handles stopping to onboard, offload, switching from active to idle or visa versa, moving Persons from Elevators to Floors or visa versa, etc.)
         Simulation.update_counters(building, day) # Last. Update the counters of anybody waiting for an elevator or anybody traveling on an elevator.
-
+        
     # After each day, can do some analytics
     print("\nDAY ", day, " ANALYTICS\n")
     avg_elevator_idle_percentage = 0.0

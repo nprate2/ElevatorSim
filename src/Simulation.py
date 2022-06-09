@@ -247,6 +247,8 @@ def handle_offload(building, elevator):
     people_offloading = elevator.people_by_destination[elevator.cur_floor]
     if len(people_offloading) != 0:
         for person in people_offloading:
+            # Update Person's cur_floor, the Floor's people_on_floor, and the Elevator's people_by_destination
+            person.cur_floor = elevator.cur_floor
             building.floors[elevator.cur_floor].people_on_floor.append(person)
             elevator.people_by_destination[elevator.cur_floor].remove(person)
 
@@ -259,6 +261,12 @@ building - Building class
 elevator - Elevator class that is active and traveling up
 """
 def update_active_up_elevator(building, elevator):
+    if elevator.cur_floor < 0:
+        print("update active up sub zero")
+        exit()
+    if elevator.cur_floor >= len(building.floors):
+        print("update active up too large")
+        exit()
     # Check if elevator has stopped_steps remaining (it is in the process of onloading or offloading Persons)
     if elevator.stopped_steps != 0:
         elevator.stopped_steps -= 1
@@ -268,7 +276,7 @@ def update_active_up_elevator(building, elevator):
             if len(elevator.up_stops) == 0:
                 if len(elevator.down_stops) == 0:
                     # Then this Elevator becomes idle
-                    print("set elev " + str(elevator.id) + " idle")
+                    #print("set elev " + str(elevator.id) + " idle")
                     elevator.is_moving = False
                 else:
                     # Then this Elevator switches direction of travel (from up to down)
@@ -303,6 +311,12 @@ building - Building class
 elevator - Elevator class that is active and traveling down
 """
 def update_active_down_elevator(building, elevator):
+    if elevator.cur_floor < 0:
+        print("update active down sub zero")
+        exit()
+    if elevator.cur_floor >= len(building.floors):
+        print("update active down too large")
+        exit()
     # Check if elevator has stopped_steps remaining (it is in the process of onloading or offloading Persons)
     if elevator.stopped_steps != 0:
         elevator.stopped_steps -= 1
@@ -312,7 +326,7 @@ def update_active_down_elevator(building, elevator):
             if len(elevator.down_stops) == 0:
                 if len(elevator.up_stops) == 0:
                     # Then this Elevator becomes idle
-                    print("set elev " + str(elevator.id) + " idle")
+                    #print("set elev " + str(elevator.id) + " idle")
                     elevator.is_moving = False
                 else:
                     # Then this Elevator switches direction of travel (from down to up)
