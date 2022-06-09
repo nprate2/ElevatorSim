@@ -191,8 +191,50 @@ def handle_new_button_presses(building):
     handle_new_up_button_presses(building)
     handle_new_down_button_presses(building)
     
+"""
+Handles Persons onboarding an Elevator to go up at its current floor.
 
+Takes:
+building - Building class
+elevator - Elevator class that is active and onboarding Persons to go up
+"""
+def handle_onboard_up(building, elevator):
+    people_onboarding = building.floors[elevator.cur_floor].people_going_up
+    for person in people_onboarding:
+        # Remove each onboarding person from the people_going_up list on this floor
+        building.floors[elevator.cur_floor].people_going_up.remove(person)
 
+        # Add Person to the list associated with their destination floor
+        if person.dest_floor in elevator.people_by_destination.keys():
+            elevator.people_by_destination[person.dest_floor].append(person)
+        else:
+            elevator.people_by_destination[person.dest_floor] = deepcopy([person])
+        
+        # If their destination floor is not yet in the Elevator's stop list, add it
+        if person.dest_floor not in elevator.up_stops:
+            elevator.up_stops.append(person.dest_floor)
+"""
+Handles Persons onboarding an Elevator to go down at its current floor.
+
+Takes:
+building - Building class
+elevator - Elevator class that is active and onboarding Persons to go down
+"""
+def handle_onboard_down(building, elevator):
+    people_onboarding = building.floors[elevator.cur_floor].people_going_down
+    for person in people_onboarding:
+        # Remove each onboarding person from the people_going_up list on this floor
+        building.floors[elevator.cur_floor].people_going_down.remove(person)
+        
+        # Add Person to the list associated with their destination floor
+        if person.dest_floor in elevator.people_by_destination.keys():
+            elevator.people_by_destination[person.dest_floor].append(person)
+        else:
+            elevator.people_by_destination[person.dest_floor] = deepcopy([person])
+        
+        # If their destination floor is not yet in the Elevator's stop list, add it
+        if person.dest_floor not in elevator.down_stops:
+            elevator.down_stops.append(person.dest_floor)
 
 """
 Handles people onboarding an Elevator at its current floor.
@@ -202,39 +244,21 @@ building - Building class
 elevator - Elevator class that is active
 """
 def handle_onboard(building, elevator):
-    if elevator.is_moving_up:
-        # Going up
-        people_onboarding = building.floors[elevator.cur_floor].people_going_up
-        for person in people_onboarding:
-            # Remove each onboarding person from the people_going_up list on this floor
-            building.floors[elevator.cur_floor].people_going_up.remove(person)
+    # Check if this is a deidled stop (the stop that caused an Elevator to switch from idle to active)
+    if elevator.deidled_floor != -1:
+        if elevator.deidled_floor_direction == "up":
+            # Elevator is picking up Persons that want to go up, regardless of the Elevator's direction of travel
+            handle_onboard_up(building, elevator)
+        else:
+            # Elevator is picking up Persons that want to go down, regardless of the Elevator's direction of travel
+            handle_onboard_down(building, elevator)
 
-            # Add Person to the list associated with their destination floor
-            if person.dest_floor in elevator.people_by_destination.keys():
-                elevator.people_by_destination[person.dest_floor].append(person)
-            else:
-                elevator.people_by_destination[person.dest_floor] = deepcopy([person])
-            
-            # If their destination floor is not yet in the Elevator's stop list, add it
-            if person.dest_floor not in elevator.up_stops:
-                elevator.up_stops.append(person.dest_floor)
+    # If it isn't a deidled stop, determine if the Elevator is moving up or down
+    elif elevator.is_moving_up:
+        handle_onboard_up(building, elevator)
 
     else:
-        # Going down
-        people_onboarding = building.floors[elevator.cur_floor].people_going_down
-        for person in people_onboarding:
-            # Remove each onboarding person from the people_going_up list on this floor
-            building.floors[elevator.cur_floor].people_going_down.remove(person)
-            
-            # Add Person to the list associated with their destination floor
-            if person.dest_floor in elevator.people_by_destination.keys():
-                elevator.people_by_destination[person.dest_floor].append(person)
-            else:
-                elevator.people_by_destination[person.dest_floor] = deepcopy([person])
-            
-            # If their destination floor is not yet in the Elevator's stop list, add it
-            if person.dest_floor not in elevator.down_stops:
-                elevator.down_stops.append(person.dest_floor)
+        handle_onboard_down(building, elevator)
 
 """
 Handles people offloading an Elevator at its current floor.
@@ -287,7 +311,7 @@ def update_active_up_elevator(building, elevator):
         return # If stopped, the elevator does nothing.
     
     if elevator.cur_floor in elevator.up_stops:
-        elevator.stopped_steps = elevator.steps_per_stop # If Elevator is stopping to onboard Persons, set stopped_steps counter
+        elevator.stopped_steps = elevator.steps_per_stop # If Elevator is stopping to onboard or offload Persons, set stopped_steps counter
 
         # Handle people that want to onboard
         handle_onboard(building, elevator)

@@ -13,6 +13,7 @@ class Elevator:
 
     # When a Floor's new button press causes an Elevator to switch from idle to active, deidled_floor is set to this floor.
     deidled_floor = -1 # Used by ElevatorAlgorithm to avoid assigning stops to an Elevator until it reaches its deidled_floor (causes faults otherwise)
+    deidled_floor_direction = "" # Used to remember what direction the Person on deidled_floor wants to travel (since the Elevator may have to travel in the opposite direction to reach deidled_floor)
 
     # Keys are Floor ids and values are lists of Persons who will get off the elevator at that floor.
     people_by_destination = {}

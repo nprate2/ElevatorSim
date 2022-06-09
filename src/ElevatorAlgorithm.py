@@ -42,7 +42,7 @@ Assigns a requested stop to one of the Elevators. (stay_where_stopped algorithm)
 Takes:
 elevators - List of Elevator classes
 floor_id - Integer id of the floor an elevator needs to stop at
-direction - String representing direction of travel, "up" or "down"
+direction - String representing direction of travel desired by people on floor_id, "up" or "down"
 
 Returns:
 assigned - Boolean representing if the requested stop was successfully assigned.
@@ -118,18 +118,20 @@ def assign_stop_SWS(elevators, floor_id, direction):
             elevators_idle[min_idx].is_moving = True
             elevators_idle[min_idx].is_moving_up = True
             elevators_idle[min_idx].deidled_floor = floor_id
+            elevators_idle[min_idx].deidled_floor_direction = direction
         else:
             # Idle Elevator is above floor_id
             elevators_idle[min_idx].down_stops.append(floor_id)
             # Need to change state of Elevator here in case multiple stops need to be assigned during one simulation tick
             elevators_idle[min_idx].is_moving = True
             elevators_idle[min_idx].is_moving_up = False
-            elevators_idle[min_idx].deidled_floor = floor_id       
+            elevators_idle[min_idx].deidled_floor = floor_id
+            elevators_idle[min_idx].deidled_floor_direction = direction      
     
     # If there are no elevators moving towards and no idle elevators, this stop is not assigned yet. It will be assigned at a later simulation step when one of those two conditions are met.
     else:
         return False
-    print("ret TRUE")
+
     return True
 
 """
