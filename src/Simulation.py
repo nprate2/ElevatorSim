@@ -297,6 +297,10 @@ def update_active_up_elevator(building, elevator):
 
         # Remove the handled floor from up_stops
         elevator.up_stops.remove(elevator.cur_floor)
+
+        # If the elevator had deidled_floor set, it just got handled and should be set back to -1 to signify it is ready to recieve more stops.
+        if elevator.deidled_floor != -1:
+            elevator.deidled_floor = -1
     
     else:
         elevator.cur_floor += 1 # Increment the cur_floor to signify moving up a floor
@@ -347,6 +351,10 @@ def update_active_down_elevator(building, elevator):
 
         # Remove the handled floor from down_stops
         elevator.down_stops.remove(elevator.cur_floor)
+
+        # If the elevator had deidled_floor set, it just got handled and should be set back to -1 to signify it is ready to recieve more stops.
+        if elevator.deidled_floor != -1:
+            elevator.deidled_floor = -1
     else:
         elevator.cur_floor -= 1 # Decrement the cur_floor to signify the Elevator moving down a floor
 

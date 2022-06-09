@@ -11,6 +11,9 @@ class Elevator:
     is_moving_up = False
     stopped_steps = 0 # Used to keep an Elevator stationary when it stops to onload or offload Persons
 
+    # When a Floor's new button press causes an Elevator to switch from idle to active, deidled_floor is set to this floor.
+    deidled_floor = -1 # Used by ElevatorAlgorithm to avoid assigning stops to an Elevator until it reaches its deidled_floor (causes faults otherwise)
+
     # Keys are Floor ids and values are lists of Persons who will get off the elevator at that floor.
     people_by_destination = {}
     

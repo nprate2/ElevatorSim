@@ -18,6 +18,11 @@ class ElevatorAlgorithm:
 
 
 """
+simple algorithm:
+
+"""
+
+"""
 stay_where_stopped algorithm (SWS):
 
 When an elevator visits the last floor on its stop list, it remains idle on that floor until it is assigned a new stop.
@@ -73,11 +78,11 @@ def assign_stop_SWS(elevators, floor_id, direction):
         if elevators[i].is_moving:
             if direction == "up":
                 # Check if Elevator is moving up towards floor_id
-                if elevators[i].cur_floor < floor_id and elevators[i].is_moving_up:
+                if elevators[i].cur_floor < floor_id and elevators[i].is_moving_up and elevators[i].deidled_floor == -1:
                     elevators_moving_towards.append(elevators[i])
             else:
                 # Check if Elevator is moving down towards floor_id
-                if elevators[i].cur_floor > floor_id and not elevators[i].is_moving_up:
+                if elevators[i].cur_floor > floor_id and not elevators[i].is_moving_up and elevators[i].deidled_floor == -1:
                     elevators_moving_towards.append(elevators[i])
             
         else:
@@ -107,19 +112,19 @@ def assign_stop_SWS(elevators, floor_id, direction):
                 min_idx = i
 
         if elevators_idle[min_idx].cur_floor < floor_id:
+            # Idle Elevator is below floor_id
             elevators_idle[min_idx].up_stops.append(floor_id)
             # Need to change state of Elevator here in case multiple stops need to be assigned during one simulation tick
             elevators_idle[min_idx].is_moving = True
             elevators_idle[min_idx].is_moving_up = True
+            elevators_idle[min_idx].deidled_floor = floor_id
         else:
+            # Idle Elevator is above floor_id
             elevators_idle[min_idx].down_stops.append(floor_id)
             # Need to change state of Elevator here in case multiple stops need to be assigned during one simulation tick
             elevators_idle[min_idx].is_moving = True
             elevators_idle[min_idx].is_moving_up = False
-        #if direction == "up":
-            
-        #else:
-            
+            elevators_idle[min_idx].deidled_floor = floor_id       
     
     # If there are no elevators moving towards and no idle elevators, this stop is not assigned yet. It will be assigned at a later simulation step when one of those two conditions are met.
     else:
