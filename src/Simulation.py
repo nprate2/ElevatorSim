@@ -153,11 +153,11 @@ def handle_new_up_button_presses(building):
     idxs_to_pop = [] # Used to track which up stop idxs have been assigned
     for i in range(len(building.floors_new_up_button)):
         requested_floor = building.floors_new_up_button[i]
-        #print("calling assign stop")
         assigned = building.elevator_algorithm.assign_stop(building.elevators, requested_floor, "up") # Attempt to assign stop
         if assigned:
             idxs_to_pop.append(i)
     idxs_to_pop.reverse() # So we pop largest idxs first (popping smallest idxs would mess up larger idxs)
+
     # Pop assigned up stops
     for idx in idxs_to_pop:
         building.floors_new_up_button.pop(idx)
@@ -172,11 +172,11 @@ def handle_new_down_button_presses(building):
     idxs_to_pop = [] # Used to track which down stop idxs have been assigned
     for i in range(len(building.floors_new_down_button)):
         requested_floor = building.floors_new_down_button[i]
-        #print("calling assigned stop 2")
         assigned = building.elevator_algorithm.assign_stop(building.elevators, requested_floor, "down") # Attempt to assign stop
         if assigned:
             idxs_to_pop.append(i)
     idxs_to_pop.reverse() # So we pop largest idxs first (popping smallest idxs would mess up larger idxs)
+
     # Pop assigned down stops
     for idx in idxs_to_pop:
         building.floors_new_down_button.pop(idx)

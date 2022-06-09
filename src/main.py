@@ -44,7 +44,8 @@ for i in range(1000):
 num_steps_per_day = 24686
 for day in tqdm(range(7)):
     for step in tqdm(range(int(num_steps_per_day))):
-        #building.print_building_state()
+
+        building.print_building_state()
         #for i in range(len(building.elevators)):
             #print("elevator up stops", building.elevators[i].up_stops)
             #print("elevator down stops", building.elevators[i].down_stops)

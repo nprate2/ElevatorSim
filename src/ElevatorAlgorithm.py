@@ -12,9 +12,9 @@ class ElevatorAlgorithm:
 
     def assign_stop(self, elevators, requested_floor, direction):
         if self.algorithm == "stay_where_stopped":
-            assign_stop_SWS(elevators, requested_floor, direction)
+            return assign_stop_SWS(elevators, requested_floor, direction)
         else:
-            assign_stop_RTG(elevators, requested_floor, direction)
+            return assign_stop_RTG(elevators, requested_floor, direction)
 
 
 """
@@ -129,7 +129,7 @@ def assign_stop_SWS(elevators, floor_id, direction):
     # If there are no elevators moving towards and no idle elevators, this stop is not assigned yet. It will be assigned at a later simulation step when one of those two conditions are met.
     else:
         return False
-
+    print("ret TRUE")
     return True
 
 """

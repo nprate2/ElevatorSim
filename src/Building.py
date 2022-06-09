@@ -15,6 +15,9 @@ class Building:
     floors_new_up_button = []
     floors_new_down_button = []
 
+    # Used to run one step of the simulation loop at a time once an Elevator is detected to be carrying people
+    debug_simulation_loop = False
+
     """
     Initializes a Building object.
 
@@ -68,6 +71,7 @@ class Building:
     Prints the state of a building for debugging purposes.
     """
     def print_building_state(self):
+        """
         print("\n-----FLOORS-----\n")
         for i in range(len(self.floors)):
             print("Floor:", i)
@@ -75,14 +79,32 @@ class Building:
             print("People going up:", len(self.floors[i].people_going_up))
             print("People going down:", len(self.floors[i].people_going_down))
             print("\n")
-        
-        print("\n-----ELEVATORS-----\n")
+        """
+        print("-----BUIDLING-----\n")
+        print("Floors new up:", self.floors_new_up_button)
+        print("Floor new down:", self.floors_new_down_button)
+
+        print("-----ELEVATORS-----\n")
         for i in range(len(self.elevators)):
             print("Elevator:", i)
-            print("Cur floor:", self.elevators[i].cur_floor)
-            print("Is moving:", self.elevators[i].is_moving)
-            print("Is moving up:", self.elevators[i].is_moving_up)
+            
+            if self.elevators[i].deidled_floor != -1:
+                print("Cur floor: " + str(self.elevators[i].cur_floor) + ". Deidled floor: " + str(self.elevators[i].deidled_floor))
+            else:
+                print("Cur floor:", self.elevators[i].cur_floor)
+
+            print("Moving: " + str(self.elevators[i].is_moving) + ". Up: " + str(self.elevators[i].is_moving_up))
+            #print("Is moving up:", self.elevators[i].is_moving_up)
             print("Up stops:", self.elevators[i].up_stops)
             print("Down stops:", self.elevators[i].down_stops)
+            for key in self.elevators[i].people_by_destination.keys():
+                if len(self.elevators[i].people_by_destination[key]) != 0:
+                    print(str(len(self.elevators[i].people_by_destination[key])) + " people with destination " + str(key))
+                    self.debug_simulation_loop = True
             print("\n")
+            #if len(self.elevators[i].up_stops) > 0 or len(self.elevators[i].down_stops) > 0:
+            #    self.debug_simulation_loop = True
+
+        if self.debug_simulation_loop:
+            input("Enter to continue")
             
