@@ -127,7 +127,7 @@ def update_counters(building, day):
         for person in people_going_down:
             person.steps_waiting[day] += 1
 
-    # Update Person traveling counters, Elevator idle counters, and Elevator active counters
+    # Update Person traveling counters, Elevator idle counters, Elevator stopped counters, and Elevator active counters
     for i in range(len(building.elevators)):
         # Person traveling counters
         for key in building.elevators[i].people_by_destination.keys():
@@ -135,10 +135,13 @@ def update_counters(building, day):
             for j in range(len(people)):
                 people[j].steps_traveling[day] += 1
 
-        # Elevator idle and active counters
+        # Elevator idle, stopped, and active counters
         if building.elevators[i].is_moving:
             #print("update active")
-            building.elevators[i].steps_active[day] += 1
+            if building.elevators[i].stopped_steps != 0:
+                building.elevators[i].steps_stopped[day] += 1
+            else:
+                building.elevators[i].steps_active[day] += 1
         else:
             #print("update idle")
             building.elevators[i].steps_idle[day] += 1
