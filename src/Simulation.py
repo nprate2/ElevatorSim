@@ -213,6 +213,9 @@ def handle_onboard_up(building, elevator):
         # If their destination floor is not yet in the Elevator's stop list, add it
         if person.dest_floor not in elevator.up_stops:
             elevator.up_stops.append(person.dest_floor)
+    # Reset the Floor's up button
+    if building.floors[elevator.cur_floor].is_up_pressed:
+        building.floors[elevator.cur_floor].is_up_pressed = False
 """
 Handles Persons onboarding an Elevator to go down at its current floor.
 
@@ -223,7 +226,7 @@ elevator - Elevator class that is active and onboarding Persons to go down
 def handle_onboard_down(building, elevator):
     people_onboarding = building.floors[elevator.cur_floor].people_going_down
     for person in people_onboarding:
-        # Remove each onboarding person from the people_going_up list on this floor
+        # Remove each onboarding person from the people_going_down list on this floor
         building.floors[elevator.cur_floor].people_going_down.remove(person)
         
         # Add Person to the list associated with their destination floor
@@ -235,6 +238,10 @@ def handle_onboard_down(building, elevator):
         # If their destination floor is not yet in the Elevator's stop list, add it
         if person.dest_floor not in elevator.down_stops:
             elevator.down_stops.append(person.dest_floor)
+
+    # Reset the Floor's down button
+    if building.floors[elevator.cur_floor].is_down_pressed:
+        building.floors[elevator.cur_floor].is_down_pressed = False
 
 """
 Handles people onboarding an Elevator at its current floor.

@@ -44,12 +44,11 @@ for i in range(1000):
 num_steps_per_day = 24686
 for day in tqdm(range(7)):
     for step in tqdm(range(int(num_steps_per_day))):
-
-        #building.print_building_state()
         #for i in range(len(building.elevators)):
             #print("elevator up stops", building.elevators[i].up_stops)
             #print("elevator down stops", building.elevators[i].down_stops)
         Simulation.handle_state_changes(building, day, step) # First. Check if anybody not waiting for an elevator needs to start doing so.
+        #building.print_building_state()
         Simulation.handle_new_button_presses(building)
 
         Simulation.update_elevators(building) # Update all Elevators, active and idle. (handles stopping to onboard, offload, switching from active to idle or visa versa, moving Persons from Elevators to Floors or visa versa, etc.)
