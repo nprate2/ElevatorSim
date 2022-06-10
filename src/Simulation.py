@@ -249,6 +249,10 @@ def handle_onboard_down(building, elevator):
         # If their destination floor is not yet in the Elevator's stop list, add it
         if person.dest_floor not in elevator.down_stops:
             elevator.down_stops.append(person.dest_floor)
+        
+        # Increment counters tracking how many Persons travel from each Floor
+        building.daily_floor_departure_counters[elevator.cur_floor] += 1
+        building.hourly_floor_departure_counters[elevator.cur_floor] += 1
 
     # Reset the Floor's down button
     if building.floors[elevator.cur_floor].is_down_pressed:
@@ -293,6 +297,9 @@ def handle_offload(building, elevator):
             person.cur_floor = elevator.cur_floor
             building.floors[elevator.cur_floor].people_on_floor.append(person)
             elevator.people_by_destination[elevator.cur_floor].remove(person)
+            # Increment counters tracking how many Persons travel to each Floor
+            building.daily_floor_destination_counters[elevator.cur_floor] += 1
+            building.hourly_floor_destination_counters[elevator.cur_floor] += 1
 
 
 """

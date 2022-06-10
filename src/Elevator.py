@@ -36,6 +36,16 @@ class Elevator:
     daily_steps_stopped = 0
     hourly_steps_stopped = 0
 
+    """
+    
+    Takes:
+    id - integer representing id of the Elevator
+    capacity - integer representing capacity of the Elevator
+    starting_floor - integer representing initial position of the Elevator at start of simulation
+    steps_per_stop - integer representing the number of simulation steps the Elevator takes to onload/offload Persons
+
+    Runs in O(1) time.
+    """
     def __init__(self, id, capacity, starting_floor, steps_per_stop):
         self.id = id
         self.capacity = capacity

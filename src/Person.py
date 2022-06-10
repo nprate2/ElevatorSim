@@ -28,6 +28,22 @@ class Person:
 
     dest_floors_by_state_name = {} # Stores possible destination floors for each state of a Person. Keys are state names (strings) and values are lists of integers representing Floor ids
 
+    """
+    Initializes a Person class by setting id, home_floor, prob_having_visitors, avg_num_visitors, and avg_num_visitors.
+    Generates a schedule for the Person then, using that schedule, generates state change data to determine exact steps for state changes in the simulation.
+    Generates dest_floors_by_state_name by combining building_dest_floors_by_state_name with the Person's home_floor
+
+    Takes:
+    id - integer representing the id of the Person
+    home_floor - integer representing the home Floor of the Person
+    prob_having_visitors - float between 0.0 and 1.0 representing the probabilitiy of the Person to bring visitors back with them when they travel from the 1st floor
+    avg_num_visitors - integer representing the average number of visitors the Person brings back with them
+    building_dest_floors_by_state_name - dictionary where keys are state names (strings) and values are lists of potential destination Floor ids for any given state from a Building's perspective
+
+    Runs in O(1) + O(generate_schedule) + O(generate_state_change_data) + O(generate_dest_floors_by_state_name):
+    O(1) + + (O(D) + O(C^2)) + O(1)
+
+    """
     def __init__(self, id, home_floor, prob_having_visitors, avg_num_visitors, building_dest_floors_by_state_name):
         self.id = id
         self.home_floor = home_floor
@@ -50,6 +66,8 @@ class Person:
     """
     Computes state_change_steps and state_change_idx. These are used to store the exact step number that a person changes state, as well as what states they change between.
     state_change_steps[i] and state_change_ids[i] will be the same length, but that length may differ between i's, as it is dependent upon how many state changes a schedule has in a given day.
+    
+    Runs in O(D) + O(C^2) where D is the number of days in a schedule and C is the number of chunks in a day:
     """
     def generate_state_change_data(self):
         state_change_steps = []
@@ -86,6 +104,8 @@ class Person:
 
     Takes:
     building_dest_floors_by_state_name - Dictionary where keys are state names (strings) and values are lists of potential destination Floor ids for any given state from a Building's perspective (Building doesn't know the home floor of a Person)
+    
+    Runs in O(1)
     """
     def generate_dest_floors_by_state_name(self, building_dest_floors_by_state_name):
         self.dest_floors_by_state_name = deepcopy(building_dest_floors_by_state_name)

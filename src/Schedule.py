@@ -33,6 +33,8 @@ schedule - 2d numpy array of shape (7, N) where N is the number of time chunks i
 Returns:
 Number of discussion sections associated with the chosen course format.
 This is used to sum discussions and add them to schedule after all courses' lectures (so discussions don't block a needed lecture time)
+
+Runs in O(S) where S is the number of unique times a class can start at in a day
 """
 def schedule_4CR_lectures(class_start_times, schedule):
     np.random.shuffle(class_start_times)
@@ -57,6 +59,8 @@ schedule - 2d numpy array of shape (7, N) where N is the number of time chunks i
 Returns:
 Number of discussion sections associated with the chosen course format.
 This is used to sum discussions and add them to schedule after all courses' lectures (so discussions don't block a needed lecture time)
+
+Runs in O(S) where S is the number of unique times a class can start at in a day
 """
 def schedule_3CR_lectures(class_start_times, schedule):
     np.random.shuffle(class_start_times)
@@ -99,6 +103,8 @@ schedule - 2d numpy array of shape (7, N) where N is the number of time chunks i
 Returns:
 Number of discussion sections associated with the chosen course format.
 This is used to sum discussions and add them to schedule after all courses' lectures (so discussions don't block a needed lecture time)
+
+Runs in O(S) where S is the number of unique times a class can start at in a day
 """
 def schedule_2CR_lectures(class_start_times, schedule):
     np.random.shuffle(class_start_times)
@@ -132,6 +138,8 @@ schedule - 2d numpy array of shape (7, N) where N is the number of time chunks i
 Returns:
 Number of discussion sections associated with the chosen course format.
 This is used to sum discussions and add them to schedule after all courses' lectures (so discussions don't block a needed lecture time)
+
+Runs in O(S) where S is the number of unique times a class can start at in a day
 """
 def schedule_1CR_lecture(class_start_times, schedule):
     days = np.linspace(start=1, stop=5, num=5, dtype=int)
@@ -154,6 +162,8 @@ Takes:
 class_start_times - numpy array of indices of a schedule day that classes can occurr in
 schedule - 2d numpy array of shape (7, N) where N is the number of time chunks in each of a week's seven days. If N=24, the schedule is hourly
 num_discussions - cumulative sum of all discussions associated with a person's schedule. This is obtained by summing the return values of schedule_XCR_lecture functions.
+
+Runs in O(C*S) where C is the number of class discussions and S is the number of unique times a class can start at in a day
 """
 def schedule_discussions(class_start_times, schedule, num_discussions):
     days = np.linspace(start=1, stop=5, num=5, dtype=int)
@@ -181,6 +191,8 @@ Generates a random class schedule and stores it in schedule.
 
 Takes:
 schedule - 2d numpy array of shape (7, N) where N is the number of time chunks in each of a week's seven days. If N=24, the schedule is hourly
+
+Runs in O(H) + O(H*S) + O(C*S) where H is the number of course hours, S is the number of times classes can start in a day, and C is the number of class discussions
 """
 def schedule_class(schedule):
     total_credit_hours = np.random.randint(constants.min_total_course_hours, constants.max_total_course_hours + 1) # Must add one to max since randint is exclusive for upper limit parameter.
@@ -199,24 +211,26 @@ def schedule_class(schedule):
     for i in range(len(course_hours)):
         course_hour = course_hours[i]
         if course_hour == 4:
-            num_discussions += schedule_4CR_lectures(class_start_times, schedule)
+            num_discussions += schedule_4CR_lectures(class_start_times, schedule) # O(S)
 
         elif course_hour == 3:
-            num_discussions += schedule_3CR_lectures(class_start_times, schedule)
+            num_discussions += schedule_3CR_lectures(class_start_times, schedule) # O(S)
 
         elif course_hour == 2:
-            num_discussions += schedule_2CR_lectures(class_start_times, schedule)
+            num_discussions += schedule_2CR_lectures(class_start_times, schedule) # O(S)
 
         else:
-            num_discussions += schedule_1CR_lecture(class_start_times, schedule)
+            num_discussions += schedule_1CR_lecture(class_start_times, schedule) # O(S)
 
-    schedule_discussions(class_start_times, schedule, num_discussions)
+    schedule_discussions(class_start_times, schedule, num_discussions) # O(C*S)
 
 """
 Generates a random sleep schedule and stores it in schedule.
 
 Takes:
 schedule - 2d numpy array of shape (7, N) where N is the number of time chunks in each of a week's seven days. If N=24, the schedule is hourly
+
+Runs is O(D) where D is the number of days in the schedule
 """
 def schedule_sleep(schedule):
     variety = np.random.randint(0, 2)
@@ -275,6 +289,8 @@ Generates a random meal schedule (breakfast, lunch, dinner, late night) and stor
 
 Takes:
 schedule - 2d numpy array of shape (7, N) where N is the number of time chunks in each of a week's seven days. If N=24, the schedule is hourly
+
+Runs in O(D * (O(b) + O(l) + O(d))) time where D is the number of days in the schedule, b, l, and d are the number of times breakfast, lunch, and dinner respectively can occur at
 """
 def schedule_meals(schedule):
     for i in range(schedule.shape[0]):
@@ -312,6 +328,8 @@ Generates a random exercise schedule and stores it in schedule.
 
 Takes:
 schedule - 2d numpy array of shape (7, N) where N is the number of time chunks in each of a week's seven days. If N=24, the schedule is hourly
+
+Runs in O(D * C) time, where D is the number of days and C is the number of chunks in a day
 """
 def schedule_exercise(schedule):
     hours = np.linspace(0, 23, 14, dtype=int)
@@ -331,6 +349,8 @@ Generates a random shopping schedule and stores it in schedule.
 
 Takes:
 schedule - 2d numpy array of shape (7, N) where N is the number of time chunks in each of a week's seven days. If N=24, the schedule is hourly
+
+Runs in O(D * C) time, where D is the number of days and C is the number of chunks in a day
 """
 def schedule_shopping(schedule):
     hours = np.linspace(0, 23, 14, dtype=int)
@@ -351,6 +371,8 @@ Generates a random chores schedule and stores it in schedule.
 
 Takes:
 schedule - 2d numpy array of shape (7, N) where N is the number of time chunks in each of a week's seven days. If N=24, the schedule is hourly
+
+Runs in O(D * C) time, where D is the number of days and C is the number of chunks in a day
 """
 def schedule_chores(schedule):
     hours = np.linspace(0, 23, 14, dtype=int)
@@ -370,6 +392,8 @@ Generates a random study schedule and stores it in schedule.
 
 Takes:
 schedule - 2d numpy array of shape (7, N) where N is the number of time chunks in each of a week's seven days. If N=24, the schedule is hourly
+
+Runs in O(D * C) time, where D is the number of days and C is the number of chunks in a day
 """
 def schedule_study(schedule):
     hours = np.linspace(0, 23, 14, dtype=int)
@@ -383,17 +407,18 @@ def schedule_study(schedule):
 
 """
 Using the "schedule_[activity]" functions above, a randomized student schedule is generated.
+
+Runs in (O(H) + O(H*S) + O(C*S)) + O(D) + O(D * (O(b) + O(l) + O(d))) + O(D * C) + O(D * C) + O(D * C) + O(D * C)
 """
 def generate_schedule():
     schedule = np.zeros((7, 24), dtype=int) # 24 hours in a day, 7 days a week
-    schedule_class(schedule)
-    schedule_sleep(schedule)
-    schedule_meals(schedule)
-    schedule_exercise(schedule)
-    schedule_shopping(schedule)
-    schedule_chores(schedule)
-    schedule_study(schedule)
-    #print("schedule", schedule)
+    schedule_class(schedule) # O(H) + O(H*S) + O(C*S)
+    schedule_sleep(schedule) # O(D)
+    schedule_meals(schedule) # O(D * (O(b) + O(l) + O(d)))
+    schedule_exercise(schedule) # O(D * C)
+    schedule_shopping(schedule) # O(D * C)
+    schedule_chores(schedule) # O(D * C)
+    schedule_study(schedule) # O(D * C)
     return schedule
 
     

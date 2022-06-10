@@ -46,6 +46,8 @@ direction - String representing direction of travel desired by people on floor_i
 
 Returns:
 assigned - Boolean representing if the requested stop was successfully assigned.
+
+Runs in as litte as O(E) and as long as O(4E) time, where E is number of Elevators
 """
 def assign_stop_SWS(elevators, floor_id, direction):
     # Check if there is and Elevator that was previously scheduled to stop at the requested Floor

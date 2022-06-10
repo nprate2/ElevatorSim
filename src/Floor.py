@@ -11,6 +11,16 @@ class Floor:
     people_going_up = []
     people_going_down = []
     
+    """
+    Initializes a Floor class by setting id and num_residents, deepcopying lists to ensure unique memory between instances, and generating People to populate people_on_floor
+
+    Takes:
+    id - integer representing id of the Floor
+    num_residents - integer representing number of residents of the Floor
+    building_dest_floors_by_state_name - dictionary where keys are state names (strings) and values are lists of potential destination Floor ids for any given state from a Building's perspective
+    
+    Runs in O(P) time, where P is the number of People living on the Floor
+    """
     def __init__(self, id, num_residents, building_dest_floors_by_state_name):
         # Ensure memory is unique per instance
         self.people_on_floor = deepcopy(self.people_on_floor)

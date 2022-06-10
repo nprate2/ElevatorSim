@@ -1,3 +1,5 @@
+days_of_week = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
+days_of_week_abbreviations = ["Su", "M", "T", "W", "Tr", "F", "Sa"]
 seconds_per_step = 3.5 # For the sake of simulation and analytics, number of seconds each simulation step represents
 
 # Determines the range of total number of credit hours a schedule can have
