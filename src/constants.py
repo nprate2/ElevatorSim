@@ -1,3 +1,5 @@
+seconds_per_step = 3.5 # For the sake of simulation and analytics, number of seconds each simulation step represents
+
 # Determines the range of total number of credit hours a schedule can have
 min_total_course_hours = 12
 max_total_course_hours = 18 # Schedules may not be generated properly if max exceeds 32

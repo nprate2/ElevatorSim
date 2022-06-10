@@ -119,13 +119,15 @@ day - integer representing day of the week (0-6 where 0 corresponds to Sunday an
 def update_counters(building, day):
     for i in range(len(building.floors)):
         # Update Person waiting counters
-        people_going_up = building.floors[i].people_going_up
-        people_going_down = building.floors[i].people_going_down
+        for person in building.floors[i].people_going_up:
+            #person.steps_waiting[day] += 1
+            person.daily_steps_waiting += 1
+            person.hourly_steps_waiting += 1
 
-        for person in people_going_up:
-            person.steps_waiting[day] += 1
-        for person in people_going_down:
-            person.steps_waiting[day] += 1
+        for person in building.floors[i].people_going_down:
+            #person.steps_waiting[day] += 1
+            person.daily_steps_waiting += 1
+            person.hourly_steps_waiting += 1
 
     # Update Person traveling counters, Elevator idle counters, Elevator stopped counters, and Elevator active counters
     for i in range(len(building.elevators)):
@@ -133,18 +135,24 @@ def update_counters(building, day):
         for key in building.elevators[i].people_by_destination.keys():
             people = building.elevators[i].people_by_destination[key]
             for j in range(len(people)):
-                people[j].steps_traveling[day] += 1
+                #people[j].steps_traveling[day] += 1
+                people[j].daily_steps_traveling += 1
+                people[j].hourly_steps_traveling += 1
 
         # Elevator idle, stopped, and active counters
         if building.elevators[i].is_moving:
-            #print("update active")
             if building.elevators[i].stopped_steps != 0:
-                building.elevators[i].steps_stopped[day] += 1
+                #building.elevators[i].steps_stopped[day] += 1
+                building.elevators[i].daily_steps_stopped += 1
+                building.elevators[i].hourly_steps_stopped += 1
             else:
-                building.elevators[i].steps_active[day] += 1
+                #building.elevators[i].steps_active[day] += 1
+                building.elevators[i].daily_steps_active += 1
+                building.elevators[i].hourly_steps_active += 1
         else:
-            #print("update idle")
-            building.elevators[i].steps_idle[day] += 1
+            #building.elevators[i].steps_idle[day] += 1
+            building.elevators[i].daily_steps_idle += 1
+            building.elevators[i].hourly_steps_idle += 1
 
 """
 Assigns all Floors within the Building's "floors_new_up_button" list to one of the Building's Elevators. Utilizes the ElevatorAlgorithm of the Building.

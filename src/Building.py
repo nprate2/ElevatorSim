@@ -7,6 +7,7 @@ class Building:
     # (Unchanging) Used to define the physical structure of the building.
     floors = []
     elevators = []
+    population = 0
     
     # Brains of the elevator system. Utilizes elevators list to schedule routes to visit floors with pressed "call elevator" buttons.
     elevator_algorithm = None
@@ -49,6 +50,7 @@ class Building:
     """
     def generate_floors(self, floor_populations, building_dest_floors_by_state_name):
         for i in range(len(floor_populations)):
+            self.population += floor_populations[i]
             floor = Floor(id=i, num_residents=floor_populations[i], building_dest_floors_by_state_name=building_dest_floors_by_state_name)
             self.floors.append(floor)
 

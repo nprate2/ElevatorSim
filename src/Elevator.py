@@ -24,9 +24,17 @@ class Elevator:
     down_stops = []
 
     # Arrays counting the number of simulation steps an Elevator spends idle and active
-    steps_idle = np.zeros((7,))
-    steps_active = np.zeros((7,))
-    steps_stopped = np.zeros((7,))
+    #steps_idle = np.zeros((7,))
+    #steps_active = np.zeros((7,))
+    #steps_stopped = np.zeros((7,))
+    # EXPERIMENTAL
+    # EXPERIMENTAL
+    daily_steps_idle = 0
+    hourly_steps_idle = 0
+    daily_steps_active = 0
+    hourly_steps_active = 0
+    daily_steps_stopped = 0
+    hourly_steps_stopped = 0
 
     def __init__(self, id, capacity, starting_floor, steps_per_stop):
         self.id = id
@@ -37,8 +45,8 @@ class Elevator:
         self.people_by_destination = deepcopy(self.people_by_destination)
         self.up_stops = deepcopy(self.up_stops)
         self.down_stops = deepcopy(self.down_stops)
-        self.steps_idle = deepcopy(self.steps_idle)
-        self.steps_active = deepcopy(self.steps_active)
-        self.steps_stopped = deepcopy(self.steps_stopped)
+        #self.steps_idle = deepcopy(self.steps_idle)
+        #self.steps_active = deepcopy(self.steps_active)
+        #self.steps_stopped = deepcopy(self.steps_stopped)
 
         

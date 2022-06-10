@@ -14,8 +14,13 @@ class Person:
     avg_num_visitors = -1
 
     # Arrays counting the number of simulation steps a Person spends waiting for an elevator and traveling on one
-    steps_waiting = np.zeros((7,))
-    steps_traveling = np.zeros((7,))
+    #steps_waiting = np.zeros((7,))
+    #steps_traveling = np.zeros((7,))
+    # EXPERIMENTAL
+    daily_steps_waiting = 0
+    hourly_steps_waiting = 0
+    daily_steps_traveling = 0
+    hourly_steps_traveling = 0
 
     schedule = [] # Numpy array of shape (7, N) where N is the number of time chunks in a given day.
     state_change_steps = [] # Precise step numbers to change state. Idxs correspond to items in state_change_ids. Contains step numbers for the entire week, but steps are within a day
@@ -31,8 +36,8 @@ class Person:
         self.avg_num_visitors = avg_num_visitors
 
         # Ensure memory is unique per instance
-        self.steps_waiting = deepcopy(self.steps_waiting)
-        self.steps_traveling = deepcopy(self.steps_traveling)
+        #self.steps_waiting = deepcopy(self.steps_waiting)
+        #self.steps_traveling = deepcopy(self.steps_traveling)
 
         self.schedule = deepcopy(self.schedule)
         self.schedule = Schedule.generate_schedule()
