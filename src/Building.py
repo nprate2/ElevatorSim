@@ -1,4 +1,6 @@
 from copy import deepcopy
+
+import numpy as np
 from Floor import Floor
 from Elevator import Elevator
 from ElevatorAlgorithm import ElevatorAlgorithm
@@ -38,7 +40,7 @@ class Building:
     """
     def __init__(self, floor_populations, building_dest_floors_by_state_name, elevator_algorithm, elevator_starting_floors, elevator_capacities, elevator_steps_per_stops):
         self.floors = deepcopy(self.floors)
-        self.elevators = deepcopy(self.elevators) 
+        self.elevators = deepcopy(self.elevators)
         self.floors_new_down_button = deepcopy(self.floors_new_down_button)
         self.floors_new_up_button = deepcopy(self.floors_new_up_button)
         
@@ -46,10 +48,11 @@ class Building:
         self.generate_elevators(elevator_starting_floors, elevator_capacities, elevator_steps_per_stops)
         self.elevator_algorithm = ElevatorAlgorithm(elevator_algorithm)
 
-        daily_floor_destination_counters = deepcopy((len(self.floors),))
-        daily_floor_departure_counters = deepcopy((len(self.floors),))
-        hourly_floor_destination_counters = deepcopy((len(self.floors),))
-        hourly_floor_departure_counters = deepcopy((len(self.floors),))
+        self.daily_floor_destination_counters = deepcopy(np.zeros((len(self.floors))))
+        self.daily_floor_departure_counters = deepcopy(np.zeros((len(self.floors))))
+        self.hourly_floor_destination_counters = deepcopy(np.zeros((len(self.floors))))
+        self.hourly_floor_departure_counters = deepcopy(np.zeros((len(self.floors))))
+        print(self.daily_floor_departure_counters.shape)
 
     """
     Generates a list of Floor classes for the building.

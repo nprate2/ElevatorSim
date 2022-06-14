@@ -69,7 +69,7 @@ buidling - Building class
 day - integer representing day of the week (0-6 where 0 corresponds to Sunday and 6 corresponds to Saturday)
 person - Person class
 """
-def handle_state_change(building, day, person):
+def handle_state_change_scheduled(building, day, person):
     # Grab the next state and remove old data
     new_state = person.state_change_ids[day][0, 1]
     person.state_change_ids[day] = person.state_change_ids[day][1:]
@@ -88,7 +88,7 @@ def handle_state_change(building, day, person):
         state_change_going_up(building, cur_floor_id, person)
 
 """
-Checks for and handles scheduled state changes for all Person classes in a Building class
+Checks for and handles scheduled state changes for all Person classes in a Building class. Depends on Schedule generation
 
 Takes:
 building - Building class
@@ -96,14 +96,41 @@ day - integer representing day of the week (0-6 where 0 corresponds to Sunday an
 step - integer representing the step number of the simulation on the given day
 
 """
-def handle_state_changes(building, day, step):
+def handle_state_changes_scheduled(building, day, step):
     for i in range(len(building.floors)):
         people = building.floors[i].people_on_floor
         for person in people:
             if len(person.state_change_steps[day]) != 0: # Check that there are state changes left (they are popped within handle_state_change)
                 if person.state_change_steps[day][0] == step:
-                    handle_state_change(building, day, person)
+                    handle_state_change_scheduled(building, day, person)
 
+
+"""
+Randomly (based on simulation probabilities) choose Persons to begin waiting for an Elevator at this step, and randomly choose their destination.
+
+Takes:
+building - Building class
+"""
+def handle_state_changes_randomly(building):
+    probability = 1
+    for floor in building.floors:
+        for person in floor.people_on_floor:
+            # With given probability, determine if person will start waiting for an elevator
+            random = np.random.random(None)
+            if random <= probability:
+                dest = np.random.randint(0, len(building.floors))
+                if dest == floor.id:
+                    # Nothing to do, Person is already on destination Floor
+                    continue
+                else: 
+                    person.dest_floor = dest
+                    # Assign person to the correct waiting list
+                    if dest < floor.id:
+                        # Person needs to go down
+                        state_change_going_down(building, floor.id, person)
+                    else:
+                        # Person needs to go up
+                        state_change_going_up(building, floor.id, person)
 
 
 

@@ -2,6 +2,9 @@ days_of_week = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday"
 days_of_week_abbreviations = ["Su", "M", "T", "W", "Tr", "F", "Sa"]
 seconds_per_step = 3.5 # For the sake of simulation and analytics, number of seconds each simulation step represents
 
+seconds_per_day = 86400 # Number of seconds in a day
+steps_per_day = seconds_per_day / seconds_per_step # Number of simulation steps to represent a 24 hour day
+
 # Determines the range of total number of credit hours a schedule can have
 min_total_course_hours = 12
 max_total_course_hours = 18 # Schedules may not be generated properly if max exceeds 32
