@@ -53,9 +53,80 @@ class Analytics:
         return (steps * constants.seconds_per_step) / 60
 
     """
+    Converts simulation steps to hours
+
+    Takes:
+    steps - integer representing a number of simulation steps
+    """
+    def steps_to_hours(self, steps):
+        return ((steps * constants.seconds_per_step) / 60) / 60
+
+    """
+    Converts simulation steps to days
+
+    Takes:
+    steps - integer representing a number of simulation steps
+    """
+    def steps_to_days(self, steps):
+        return (((steps * constants.seconds_per_step) / 60) / 60) / 24
+    
+    """
+    Adds a Person's daily counters to the running sums to be averaged in the future, and reset counters to zero
+
+    Takes:
+    person - Person class
+    """
+    def handle_daily_person_counters(self, person):
+        self.daily_avg_person_waiting_steps[-1] += person.daily_steps_waiting
+        self.daily_avg_person_traveling_steps[-1] += person.daily_steps_traveling
+        person.daily_steps_waiting = 0
+        person.daily_steps_traveling = 0
+
+    """
+    Adds a Person's hourly counters to the running sums to be averaged in the future, and reset counters to zero
+
+    Takes:
+    person - Person class
+    """
+    def handle_hourly_person_counters(self, person):
+        self.hourly_avg_person_waiting_steps[-1] += person.hourly_steps_waiting
+        self.hourly_avg_person_traveling_steps[-1] += person.hourly_steps_traveling
+        person.hourly_steps_waiting = 0
+        person.hourly_steps_traveling = 0
+    
+    """
+    Adds an Elevator's daily counters to the running sums to be averaged in the future, and reset counters to zero
+
+    Takes:
+    elevator - Elevator class
+    """
+    def handle_daily_elevator_counters(self, elevator):
+        self.daily_avg_elevator_active_steps[-1] += elevator.daily_steps_active
+        self.daily_avg_elevator_idle_steps[-1] += elevator.daily_steps_idle
+        self.daily_avg_elevator_stopped_steps[-1] += elevator.daily_steps_stopped
+        elevator.daily_steps_active = 0
+        elevator.daily_steps_idle = 0
+        elevator.daily_steps_stopped = 0
+
+    """
+    Adds an Elevator's hourly counters to the running sums to be averaged in the future, and reset counters to zero
+
+    Takes:
+    elevator - Elevator class
+    """
+    def handle_hourly_elevator_counters(self, elevator):
+        self.hourly_avg_elevator_active_steps[-1] += elevator.hourly_steps_active
+        self.hourly_avg_elevator_idle_steps[-1] += elevator.hourly_steps_idle
+        self.hourly_avg_elevator_stopped_steps[-1] += elevator.hourly_steps_stopped
+        elevator.hourly_steps_active = 0
+        elevator.hourly_steps_idle = 0
+        elevator.hourly_steps_stopped = 0
+
+    """
     Computes all daily step averages for today and append the value to this class's lists.
     This function is called by evaluate_simulation when a day change is detected.
     This function sets other class's daily counters to 0 such that they start tracking data for this new day.
+    handle_daily_person_counters and handle_daily_elevator_counters sum values of counters which are then averaged at the end of this function.
 
     Takes:
     building - Building class
@@ -67,30 +138,26 @@ class Analytics:
         self.daily_avg_person_traveling_steps.append(0.0)
         self.daily_avg_person_waiting_steps.append(0.0)
 
-        # Sum all Person waiting daily counters on each Floor, and reset them to 0 for next day
-        for i in range(len(building.floors)):
-            for person in building.floors[i].people_going_up:
-                self.daily_avg_person_waiting_steps[-1] += person.daily_steps_waiting
-                person.daily_steps_waiting = 0
+        # Sum all Person daily counters and reset them to 0 for next day. Need to check people on floor, waiting to travel, and currently traveling
+        for floor in building.floors:
+            # People on floor
+            for person in floor.people_on_floor:
+                self.handle_daily_person_counters(person)
+            # People on floor going up
+            for person in floor.people_going_up:
+                self.handle_daily_person_counters(person)
+            # People on floor going down
+            for person in floor.people_going_down:
+                self.handle_daily_person_counters(person)
 
-            for person in building.floors[i].people_going_down:
-                self.daily_avg_person_waiting_steps[-1] += person.daily_steps_waiting
-                person.daily_steps_waiting = 0
-        
-        for i in range(len(building.elevators)):
-            # Sum all Person traveling daily counters on each Elevator, and reset them to 0 for next day
-            for key in building.elevators[i].people_by_destination.keys():
-                for person in building.elevators[i].people_by_destination[key]:
-                    self.daily_avg_person_traveling_steps[-1] += person.daily_steps_traveling
-                    person.daily_steps_traveling = 0
+        # Sum all Elevator daily counters and reset them to 0 for next day. Also handle the people that are traveling.
+        for elevator in building.elevators:
+            # People traveling on elevator
+            for key in elevator.people_by_destination.keys():
+                for person in elevator.people_by_destination[key]:
+                    self.handle_daily_person_counters(person)
 
-            # Sum all Elevator idle, active, stopped daily counters, and reset them to 0 for next day
-            self.daily_avg_elevator_idle_steps[-1] += building.elevators[i].daily_steps_idle
-            building.elevators[i].daily_steps_idle = 0
-            self.daily_avg_elevator_active_steps[-1] += building.elevators[i].daily_steps_active
-            building.elevators[i].daily_steps_active = 0
-            self.daily_avg_elevator_stopped_steps[-1] += building.elevators[i].daily_steps_stopped
-            building.elevators[i].daily_steps_stopped = 0
+            self.handle_daily_elevator_counters(elevator)
         
         # Divide by totals to get average steps
         self.daily_avg_elevator_idle_steps[-1] /= len(building.elevators)
@@ -101,8 +168,9 @@ class Analytics:
 
     """
     Computes all hourly averages for today and append the value to this class's lists.
-    This function is called by evaluate_simulation when a day change is detected.
-    This function sets other class's hourly counters to 0 such that they start tracking data for this new day.
+    This function is called by evaluate_simulation when an hour change is detected.
+    This function sets other class's hourly counters to 0 such that they start tracking data for this new hour.
+    handle_hourly_person_counters and handle_hourly_elevator_counters sum values of counters which are then averaged at the end of this function.
 
     Takes:
     building - Building class
@@ -114,30 +182,28 @@ class Analytics:
         self.hourly_avg_person_traveling_steps.append(0.0)
         self.hourly_avg_person_waiting_steps.append(0.0)
 
-        # Sum all Person waiting hourly counters on each Floor, and reset them to 0 for next day
-        for i in range(len(building.floors)):
-            for person in building.floors[i].people_going_up:
-                self.hourly_avg_person_waiting_steps[-1] += person.hourly_steps_waiting
-                person.hourly_steps_waiting = 0
+        # Sum all Person waiting and traveling hourly counters, and reset them to 0 for next day. Need to check people on floor, waiting to travel, and currently traveling
+        for floor in building.floors:
+            # People on floor
+            for person in floor.people_on_floor:
+                self.handle_hourly_person_counters(person)
 
-            for person in building.floors[i].people_going_down:
-                self.hourly_avg_person_waiting_steps[-1] += person.hourly_steps_waiting
-                person.hourly_steps_waiting = 0
-        
-        for i in range(len(building.elevators)):
+            # People going up on floor
+            for person in floor.people_going_up:
+                self.handle_hourly_person_counters(person)
+
+            # People going down on floor
+            for person in floor.people_going_down:
+                self.handle_hourly_person_counters(person)
+
+        # Sum all Elevator hourly counters and reset them to 0 for next day. Also handle the people that are traveling.
+        for elevator in building.elevators:
             # Sum all Person traveling hourly counters on each Elevator, and reset them to 0 for next day
-            for key in building.elevators[i].people_by_destination.keys():
-                for person in building.elevators[i].people_by_destination[key]:
-                    self.hourly_avg_person_traveling_steps[-1] += person.hourly_steps_traveling
-                    person.hourly_steps_traveling = 0
+            for key in elevator.people_by_destination.keys():
+                for person in elevator.people_by_destination[key]:
+                    self.handle_hourly_person_counters(person)
 
-            # Sum all Elevator idle, active, stopped hourly counters, and reset them to 0 for next day
-            self.hourly_avg_elevator_idle_steps[-1] += building.elevators[i].hourly_steps_idle
-            building.elevators[i].hourly_steps_idle = 0
-            self.hourly_avg_elevator_active_steps[-1] += building.elevators[i].hourly_steps_active
-            building.elevators[i].hourly_steps_active = 0
-            self.hourly_avg_elevator_stopped_steps[-1] += building.elevators[i].hourly_steps_stopped
-            building.elevators[i].hourly_steps_stopped = 0
+            self.handle_hourly_elevator_counters(elevator)
         
         # Divide by totals to get average steps
         self.hourly_avg_elevator_idle_steps[-1] /= len(building.elevators)
@@ -160,7 +226,7 @@ class Analytics:
             self.cur_day = day
             self.compute_daily_step_averages(building)
 
-        if (step + 1) % 1029 == 0:
+        if step % int(constants.steps_per_hour) == 0 and step != 0:
             self.compute_hourly_step_averages(building)
         return
 
@@ -168,48 +234,32 @@ class Analytics:
     Graphs all daily step averages.
     """
     def graph_daily_step_averages(self):
-        """
-        #plot1 = plt.figure(1)
-        plt.plot(constants.days_of_week_abbreviations, self.daily_avg_elevator_idle_steps)
-        plt.title("Average Daily Elevator Steps Idle")
-        
-        #plot1 = plt.figure(2)
-        plt.plot(constants.days_of_week_abbreviations, self.daily_avg_elevator_active_steps)
-        plt.title("Average Daily Elevator Steps Active")
-        
-        #plot1 = plt.figure(3)
-        plt.plot(constants.days_of_week_abbreviations, self.daily_avg_elevator_stopped_steps)
-        plt.title("Average Daily Elevator Steps Stopped")
-        """
-
         fig, (ax1, ax2, ax3) = plt.subplots(1, 3)
         fig.suptitle("Average Daily Elevator Steps Breakdown")
+
         ax1.plot(constants.days_of_week_abbreviations, self.daily_avg_elevator_idle_steps)
+        ax1.set_ylim([0, int(constants.steps_per_day)])
         ax1.set_title("Steps Idle")
+
         ax2.plot(constants.days_of_week_abbreviations, self.daily_avg_elevator_active_steps)
+        ax2.set_ylim([0, int(constants.steps_per_day)])
         ax2.set_title("Steps Active")
+
         ax3.plot(constants.days_of_week_abbreviations, self.daily_avg_elevator_stopped_steps)
+        ax3.set_ylim([0, int(constants.steps_per_day)])
         ax3.set_title("Steps Stopped")
 
         plt.show()
-        
-        """
-        #plot1 = plt.figure(4)
-        plt.plot(constants.days_of_week_abbreviations, self.daily_avg_person_traveling_steps)
-        plt.title("Average Daily Person Steps Traveling")
-        
-        #plot1 = plt.figure(5)
-        plt.plot(constants.days_of_week_abbreviations, self.daily_avg_person_waiting_steps)
-        plt.title("Average Daily Person Steps Waiting")
-
-        plt.show()
-        """
 
         fig, (ax1, ax2) = plt.subplots(1, 2)
         fig.suptitle('Average Daily Person Steps Breakdown')
+
         ax1.plot(constants.days_of_week_abbreviations, self.daily_avg_person_traveling_steps)
+        ax1.set_ylim([0, int(constants.steps_per_day)])
         ax1.set_title("Steps Traveling")
+
         ax2.plot(constants.days_of_week_abbreviations, self.daily_avg_person_waiting_steps)
+        ax2.set_ylim([0, int(constants.steps_per_day)])
         ax2.set_title("Steps Waiting")
 
         plt.show()
@@ -220,45 +270,33 @@ class Analytics:
     def graph_hourly_step_averages(self):
         fig, (ax1, ax2, ax3) = plt.subplots(1, 3)
         fig.suptitle("Average Hourly Elevator Steps Breakdown")
+
         ax1.plot(self.hourly_avg_elevator_idle_steps)
+        ax1.set_ylim([0, int(constants.steps_per_hour)])
         ax1.set_title("Steps Idle")
+
         ax2.plot(self.hourly_avg_elevator_active_steps)
+        ax2.set_ylim([0, int(constants.steps_per_hour)])
         ax2.set_title("Steps Active")
+
         ax3.plot(self.hourly_avg_elevator_stopped_steps)
+        ax3.set_ylim([0, int(constants.steps_per_hour)])
         ax3.set_title("Steps Stopped")
 
         plt.show()
 
         fig, (ax1, ax2) = plt.subplots(1, 2)
         fig.suptitle('Average Hourly Person Steps Breakdown')
+
         ax1.plot(self.hourly_avg_person_traveling_steps)
+        ax1.set_ylim([0, int(constants.steps_per_hour)])
         ax1.set_title("Steps Traveling")
+
         ax2.plot(self.hourly_avg_person_waiting_steps)
+        ax2.set_ylim([0, int(constants.steps_per_hour)])
         ax2.set_title("Steps Waiting")
 
         plt.show()
-
-
-        """
-        plt.plot(self.hourly_avg_elevator_idle_steps)
-        plt.title("Average Hourly Elevator Steps Idle")
-        plt.show()
-
-        plt.plot(self.hourly_avg_elevator_active_steps)
-        plt.title("Average Hourly Elevator Steps Active")
-        plt.show()
-
-        plt.plot(self.hourly_avg_elevator_stopped_steps)
-        plt.title("Average Hourly Elevator Steps Stopped")
-        plt.show()
-
-        plt.plot(self.hourly_avg_person_traveling_steps)
-        plt.title("Average Hourly Person Steps Traveling")
-        plt.show()
-
-        plt.plot(self.hourly_avg_person_waiting_steps)
-        plt.title("Average Hourly Person Steps Waiting")
-        plt.show()"""
 
     """
     Graphs all daily minute averages.
@@ -266,44 +304,33 @@ class Analytics:
     def graph_daily_minute_averages(self):
         fig, (ax1, ax2, ax3) = plt.subplots(1, 3)
         fig.suptitle("Average Daily Elevator Minutes Breakdown")
+
         ax1.plot(constants.days_of_week_abbreviations, list(map(self.steps_to_minutes, self.daily_avg_elevator_idle_steps)))
+        ax1.set_ylim([0, int(constants.minutes_per_day)])
         ax1.set_title("Minutes Idle")
+
         ax2.plot(constants.days_of_week_abbreviations, list(map(self.steps_to_minutes, self.daily_avg_elevator_active_steps)))
+        ax2.set_ylim([0, int(constants.minutes_per_day)])
         ax2.set_title("Minutes Active")
+
         ax3.plot(constants.days_of_week_abbreviations, list(map(self.steps_to_minutes, self.daily_avg_elevator_stopped_steps)))
+        ax3.set_ylim([0, int(constants.minutes_per_day)])
         ax3.set_title("Minutes Stopped")
 
         plt.show()
 
         fig, (ax1, ax2) = plt.subplots(1, 2)
         fig.suptitle('Average Daily Person Minutes Breakdown')
+
         ax1.plot(constants.days_of_week_abbreviations, list(map(self.steps_to_minutes, self.daily_avg_person_traveling_steps)))
+        ax1.set_ylim([0, int(constants.minutes_per_day)])
         ax1.set_title("Minutes Traveling")
+
         ax2.plot(constants.days_of_week_abbreviations, list(map(self.steps_to_minutes, self.daily_avg_person_waiting_steps)))
+        ax2.set_ylim([0, int(constants.minutes_per_day)])
         ax2.set_title("Minutes Waiting")
 
         plt.show()
-        """
-        plt.plot(constants.days_of_week_abbreviations, list(map(self.steps_to_minutes, self.daily_avg_elevator_idle_steps)))
-        plt.title("Average Daily Elevator Minutes Idle")
-        plt.show()
-
-        plt.plot(constants.days_of_week_abbreviations, list(map(self.steps_to_minutes, self.daily_avg_elevator_active_steps)))
-        plt.title("Average Daily Elevator Minutes Active")
-        plt.show()
-
-        plt.plot(constants.days_of_week_abbreviations, list(map(self.steps_to_minutes, self.daily_avg_elevator_stopped_steps)))
-        plt.title("Average Daily Elevator Minutes Stopped")
-        plt.show()
-
-        plt.plot(constants.days_of_week_abbreviations, list(map(self.steps_to_minutes, self.daily_avg_person_traveling_steps)))
-        plt.title("Average Daily Person Minutes Traveling")
-        plt.show()
-
-        plt.plot(constants.days_of_week_abbreviations, list(map(self.steps_to_minutes, self.daily_avg_person_waiting_steps)))
-        plt.title("Average Daily Person Minutes Waiting")
-        plt.show()
-        """
     
     """
     Graphs all daily hourly averages.
@@ -311,42 +338,30 @@ class Analytics:
     def graph_hourly_minute_averages(self):
         fig, (ax1, ax2, ax3) = plt.subplots(1, 3)
         fig.suptitle("Average Hourly Elevator Minutes Breakdown")
+
         ax1.plot(list(map(self.steps_to_minutes, self.hourly_avg_elevator_idle_steps)))
+        ax2.set_ylim([0, int(constants.minutes_per_hour)])
         ax1.set_title("Minutes Idle")
+
         ax2.plot(list(map(self.steps_to_minutes, self.hourly_avg_elevator_active_steps)))
+        ax2.set_ylim([0, int(constants.minutes_per_hour)])
         ax2.set_title("Minutes Active")
+
         ax3.plot(list(map(self.steps_to_minutes, self.hourly_avg_elevator_stopped_steps)))
+        ax3.set_ylim([0, int(constants.minutes_per_hour)])
         ax3.set_title("Minutes Stopped")
 
         plt.show()
 
         fig, (ax1, ax2) = plt.subplots(1, 2)
         fig.suptitle('Average Hourly Person Minutes Breakdown')
+
         ax1.plot(list(map(self.steps_to_minutes, self.hourly_avg_person_traveling_steps)))
+        ax1.set_ylim([0, int(constants.minutes_per_hour)])
         ax1.set_title("Minutes Traveling")
+
         ax2.plot(list(map(self.steps_to_minutes, self.hourly_avg_person_waiting_steps)))
+        ax2.set_ylim([0, int(constants.minutes_per_hour)])
         ax2.set_title("Minutes Waiting")
 
         plt.show()
-
-        """
-        plt.plot(list(map(self.steps_to_minutes, self.hourly_avg_elevator_idle_steps)))
-        plt.title("Average Hourly Elevator Minutes Idle")
-        plt.show()
-
-        plt.plot(list(map(self.steps_to_minutes, self.hourly_avg_elevator_active_steps)))
-        plt.title("Average Hourly Elevator Minutes Active")
-        plt.show()
-
-        plt.plot(list(map(self.steps_to_minutes, self.hourly_avg_elevator_stopped_steps)))
-        plt.title("Average Hourly Elevator Minutes Stopped")
-        plt.show()
-
-        plt.plot(list(map(self.steps_to_minutes, self.hourly_avg_person_traveling_steps)))
-        plt.title("Average Hourly Person Minutes Traveling")
-        plt.show()
-
-        plt.plot(list(map(self.steps_to_minutes, self.hourly_avg_person_waiting_steps)))
-        plt.title("Average Hourly Person Minutes Waiting")
-        plt.show()
-        """

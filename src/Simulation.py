@@ -112,7 +112,7 @@ Takes:
 building - Building class
 """
 def handle_state_changes_randomly(building):
-    probability = 1
+    probability = .01
     for floor in building.floors:
         for person in floor.people_on_floor:
             # With given probability, determine if person will start waiting for an elevator
