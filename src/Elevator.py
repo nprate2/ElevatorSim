@@ -7,13 +7,17 @@ class Elevator:
     steps_per_stop = 0
 
     cur_floor = -1
-    is_moving = False
-    is_moving_up = False
+    is_moving = False # Used to know if an Elevator is moving.
+    is_moving_up = False # Used to know the direction of a moving Elevator.
+    is_returning = False # Used to know if an Elevator is returning to a floor.
     stopped_steps = 0 # Used to keep an Elevator stationary when it stops to onload or offload Persons
 
     # When a Floor's new button press causes an Elevator to switch from idle to active, deidled_floor is set to this floor.
     deidled_floor = -1 # Used by ElevatorAlgorithm to avoid assigning stops to an Elevator until it reaches its deidled_floor (causes faults otherwise)
     deidled_floor_direction = "" # Used to remember what direction the Person on deidled_floor wants to travel (since the Elevator may have to travel in the opposite direction to reach deidled_floor)
+
+    # Used by Elevator's utilizing variants of the "return_to" algorithm, where Elevators are able to return to specific floors when they run out of stops.
+    return_to_floor = -1
 
     # Keys are Floor ids and values are lists of Persons who will get off the elevator at that floor.
     people_by_destination = {}
@@ -46,11 +50,12 @@ class Elevator:
 
     Runs in O(1) time.
     """
-    def __init__(self, id, capacity, starting_floor, steps_per_stop):
+    def __init__(self, id, capacity, starting_floor, steps_per_stop, return_to_floor):
         self.id = id
         self.capacity = capacity
         self.cur_floor = starting_floor
         self.steps_per_stop = steps_per_stop
+        self.return_to_floor = return_to_floor
         
         # Ensure memory is unique per instance
         self.people_by_destination = deepcopy(self.people_by_destination)

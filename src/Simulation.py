@@ -334,6 +334,60 @@ def handle_offload(building, elevator):
             building.daily_floor_destination_counters[elevator.cur_floor] += 1
             building.hourly_floor_destination_counters[elevator.cur_floor] += 1
 
+"""
+Updates all returning Elevators in a Building each tick of simulation.
+
+Takes:
+building - Building 
+returning_elevators - list of Elevators that are returning
+"""
+def update_returning_elevators(building, returning_elevators):
+    for elevator in returning_elevators:
+        if elevator.cur_floor == elevator.return_to_floor:
+            # Elevator should become idle
+            elevator.is_returning = False
+            elevator.is_moving = False
+        else:
+            # Move Elevator one Floor closer to return_to_floor
+            if elevator.is_moving_up:
+                elevator.cur_floor += 1
+            else:
+                elevator.cur_floor -= 1
+
+
+"""
+frogs_are_cool = True
+if frogs_are_cool:
+    print("Wendy is a cool frog")
+"""
+
+"""
+This function is called by update_active_up_elevator and update_active_down_elevator when an Elevator stops being active.
+
+Takes:
+building - Building class
+elevator - Elevator class that needs to stop being active
+"""
+def handle_active_elevator_state_change(building, elevator):
+    if building.elevator_algorithm.algorithm == "stay_where_stopped":
+        # Elevator becomes idle
+        elevator.is_moving = False
+
+    elif building.elevator_algorithm.algorithm == "return_to":
+        # Elevator starts returning
+        if elevator.cur_floor == elevator.return_to_floor:
+            # Elevator becomes idle because it's already at its return_to_floor
+            elevator.is_moving = False
+
+        elif elevator.cur_floor < elevator.return_to_floor:
+            # Elevator is below return_to_floor
+            elevator.is_returning = True
+            elevator.is_moving_up = True
+
+        else:
+            # Elevator is above return_to_floor
+            elevator.is_returning = True
+            elevator.is_moving_up = False
 
 """
 Updates an active Elevator travelling up in a Building each tick of simulation.
@@ -357,9 +411,8 @@ def update_active_up_elevator(building, elevator):
             # If this was the last step to spend onboarding/offloading, then we check if the elevator has more stops or if it should become idle
             if len(elevator.up_stops) == 0:
                 if len(elevator.down_stops) == 0:
-                    # Then this Elevator becomes idle
-                    #print("set elev " + str(elevator.id) + " idle")
-                    elevator.is_moving = False
+                    handle_active_elevator_state_change(building, elevator)
+
                 else:
                     # Then this Elevator switches direction of travel (from up to down)
                     elevator.is_moving_up = False
@@ -411,9 +464,8 @@ def update_active_down_elevator(building, elevator):
             # If this was the last step to spend onboarding/offloading, then we check if the elevator has more stops or if it should become idle
             if len(elevator.down_stops) == 0:
                 if len(elevator.up_stops) == 0:
-                    # Then this Elevator becomes idle
-                    #print("set elev " + str(elevator.id) + " idle")
-                    elevator.is_moving = False
+                    handle_active_elevator_state_change(building, elevator)
+                    
                 else:
                     # Then this Elevator switches direction of travel (from down to up)
                     elevator.is_moving_up = True
@@ -490,15 +542,21 @@ Takes:
 building - Building class
 """
 def update_elevators(building):
+    returning_elevators = []
     active_elevators = []
     idle_elevators = []
-    # Find active and idle elevators
+    # Find returning, active, and idle elevators
     for i in range(len(building.elevators)):
-        if building.elevators[i].is_moving:
+        if building.elevators[i].is_returning:
+            returning_elevators.append(building.elevators[i])
+
+        elif building.elevators[i].is_moving:
             active_elevators.append(building.elevators[i])
+
         else:
             idle_elevators.append(building.elevators[i])
 
-    # Update active and idle elevators
+    # Update returning, active, and idle elevators
+    update_returning_elevators(building, returning_elevators)
     update_active_elevators(building, active_elevators)
     update_idle_elevators(building, idle_elevators)

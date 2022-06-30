@@ -7,7 +7,7 @@ import Simulation
 import constants
 
 state_names = ["freetime", "class", "sleep", "meal", "exercise", "shop", "chores", "study"]
-HERE_floor_populations = [0, 0, 0, 0, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100]
+HERE_floor_populations = [0, 0, 0, 0, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10]
 HERE_dest_floors_by_state_name = {
     "freetime": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14], # Person can go anywhere during freetime
     "class": [0], # Must go to ground floor for in person class
@@ -22,8 +22,8 @@ HERE_elevator_algorithm = "stay_where_stopped"
 HERE_elevator_starting_floors = [0, 0, 0]
 HERE_elevator_capacities = [10, 10, 10]
 HERE_elevator_steps_per_stops = [2, 2, 2] # Num simulation steps an elevator must pass (doing nothing) each time it stops to onload or offload passengers
-
-building = Building(HERE_floor_populations, HERE_dest_floors_by_state_name, HERE_elevator_algorithm, HERE_elevator_starting_floors, HERE_elevator_capacities, HERE_elevator_steps_per_stops)
+HERE_elevator_return_to_floors = [1, 4, 10]
+building = Building(HERE_floor_populations, HERE_dest_floors_by_state_name, HERE_elevator_algorithm, HERE_elevator_starting_floors, HERE_elevator_capacities, HERE_elevator_steps_per_stops, HERE_elevator_return_to_floors)
 analytics = Analytics()
 
 for day in tqdm(range(7)): # Persons' Schedules are weekly, so be sure to mod 'day' by 7 (if simulating for more than a week) before passing to handle_state_changes_scheduled()

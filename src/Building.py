@@ -13,6 +13,7 @@ class Building:
     
     # Brains of the elevator system. Utilizes elevators list to schedule routes to visit floors with pressed "call elevator" buttons.
     elevator_algorithm = None
+    #elevator_return_to_floors = []
 
     # (Changing) Used to keep track of which floors have a "call elevator" button pressed that hasn't been assigned to an elevator yet.
     floors_new_up_button = []
@@ -38,14 +39,14 @@ class Building:
 
     Runs in O(F+E) time, where F is number of Floors and E is number of Elevators
     """
-    def __init__(self, floor_populations, building_dest_floors_by_state_name, elevator_algorithm, elevator_starting_floors, elevator_capacities, elevator_steps_per_stops):
+    def __init__(self, floor_populations, building_dest_floors_by_state_name, elevator_algorithm, elevator_starting_floors, elevator_capacities, elevator_steps_per_stops, elevator_return_to_floors):
         self.floors = deepcopy(self.floors)
         self.elevators = deepcopy(self.elevators)
         self.floors_new_down_button = deepcopy(self.floors_new_down_button)
         self.floors_new_up_button = deepcopy(self.floors_new_up_button)
         
         self.generate_floors(floor_populations, building_dest_floors_by_state_name)
-        self.generate_elevators(elevator_starting_floors, elevator_capacities, elevator_steps_per_stops)
+        self.generate_elevators(elevator_starting_floors, elevator_capacities, elevator_steps_per_stops, elevator_return_to_floors)
         self.elevator_algorithm = ElevatorAlgorithm(elevator_algorithm)
 
         self.daily_floor_destination_counters = deepcopy(np.zeros((len(self.floors))))
@@ -79,9 +80,9 @@ class Building:
 
     Runs in O(E) time, where E is the number of floors
     """
-    def generate_elevators(self, elevator_starting_floors, elevator_capacities, elevator_steps_per_stops):
+    def generate_elevators(self, elevator_starting_floors, elevator_capacities, elevator_steps_per_stops, elevator_return_to_floors):
         for i in range(len(elevator_starting_floors)):
-            self.elevators.append(Elevator(id=i, capacity=elevator_capacities[i], starting_floor=elevator_starting_floors[i], steps_per_stop=elevator_steps_per_stops[i]))
+            self.elevators.append(Elevator(id=i, capacity=elevator_capacities[i], starting_floor=elevator_starting_floors[i], steps_per_stop=elevator_steps_per_stops[i], return_to_floor=elevator_return_to_floors[i]))
             # Initialize each Elevator's people_by_destination dictionary with deepcopied empty lists (can't do this within an Elevator class because it doesn't know how many floors there are)
             for j in range(len(self.floors)):
                 self.elevators[i].people_by_destination[j] = deepcopy([])
