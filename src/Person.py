@@ -13,14 +13,15 @@ class Person:
     prob_having_visitors = 0.0
     avg_num_visitors = -1
 
-    # Arrays counting the number of simulation steps a Person spends waiting for an elevator and traveling on one
-    #steps_waiting = np.zeros((7,))
-    #steps_traveling = np.zeros((7,))
-    # EXPERIMENTAL
-    daily_steps_waiting = 0
-    hourly_steps_waiting = 0
-    daily_steps_traveling = 0
-    hourly_steps_traveling = 0
+    #daily_steps_waiting = 0
+    #hourly_steps_waiting = 0
+    #daily_steps_traveling = 0
+    #hourly_steps_traveling = 0
+
+    # List of integers used to count simulation steps spent in various states
+    # Idxs and uses: 0 - daily steps waiting, 1 - hourly steps waiting, 2 - daily steps traveling,
+    #                3 - hourly steps traveling
+    counters = np.zeros((6,), dtype=int)
 
     schedule = [] # Numpy array of shape (7, N) where N is the number of time chunks in a given day.
     state_change_steps = [] # Precise step numbers to change state. Idxs correspond to items in state_change_ids. Contains step numbers for the entire week, but steps are within a day
@@ -59,6 +60,7 @@ class Person:
         self.schedule = Schedule.generate_schedule()
         self.state_change_steps = deepcopy(self.state_change_steps)
         self.state_change_ids = deepcopy(self.state_change_ids)
+        self.counters = deepcopy(self.counters)
 
         self.generate_state_change_data()
         self.generate_dest_floors_by_state_name(building_dest_floors_by_state_name)

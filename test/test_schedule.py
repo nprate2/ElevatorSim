@@ -56,7 +56,3 @@ class TestSchedule(unittest.TestCase):
     # Covered by all tests above
     def test_generate_schedule(self):
         return
-
-
-#if __name__ == "__main__":
-#    unittest.main()

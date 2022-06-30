@@ -1,4 +1,5 @@
 from tqdm import tqdm
+import numpy as np
 
 from Building import Building
 from Analytics import Analytics
@@ -6,7 +7,6 @@ import Simulation
 import constants
 
 state_names = ["freetime", "class", "sleep", "meal", "exercise", "shop", "chores", "study"]
-
 HERE_floor_populations = [0, 0, 0, 0, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100]
 HERE_dest_floors_by_state_name = {
     "freetime": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14], # Person can go anywhere during freetime

@@ -1,0 +1,39 @@
+To Do Source:
+
+ElevatorAlgorithm - assign_stop_RTG()
+
+
+To Do Test:
+
+Analytics - steps_to_seconds()
+Analytics - steps_to_minutes()
+Analytics - steps_to_hours()
+Analytics - steps_to_days()
+Analytics - handle_daily_person_counters()
+Analytics - handle_hourly_person_counters()
+Analytics - handle_daily_elevator_counters()
+Analytics - handle_hourly_elevator_counters()
+Analytics - compute_daily_step_averages()
+Analytics - compute_hourly_step_averages()
+Analytics - evaluate_simulation()
+
+ElevatorAlgorithm - assign_stop_SWS()
+ElevatorAlgorithm - assign_stop_RTG()
+
+Schedule - Various sub functions
+
+Simulation - handle_state_changes_randomly()
+Simulation - handle_onboard_up()
+Simulation - handle_onboard_down()
+
+
+
+
+
+
+Fully Tested:
+
+Building
+Elevator
+Floor
+Person

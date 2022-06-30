@@ -71,56 +71,92 @@ class Analytics:
         return (((steps * constants.seconds_per_step) / 60) / 60) / 24
     
     """
-    Adds a Person's daily counters to the running sums to be averaged in the future, and reset counters to zero
+    Adds a Person's daily counters to the running sums to be averaged in the future, and reset counters to zero.
+    A Person's counters list is structured as so:
+    0 - daily steps waiting, 1 - hourly steps waiting, 2 - daily steps traveling, 3 - hourly steps traveling
 
     Takes:
     person - Person class
     """
     def handle_daily_person_counters(self, person):
-        self.daily_avg_person_waiting_steps[-1] += person.daily_steps_waiting
-        self.daily_avg_person_traveling_steps[-1] += person.daily_steps_traveling
-        person.daily_steps_waiting = 0
-        person.daily_steps_traveling = 0
+        self.daily_avg_person_waiting_steps[-1] += person.counters[0]
+        self.daily_avg_person_traveling_steps[-1] += person.counters[2]
+
+        person.counters[0] = 0
+        person.counters[2] = 0
+
+        #self.daily_avg_person_waiting_steps[-1] += person.daily_steps_waiting
+        #self.daily_avg_person_traveling_steps[-1] += person.daily_steps_traveling
+        #person.daily_steps_waiting = 0
+        #person.daily_steps_traveling = 0
 
     """
-    Adds a Person's hourly counters to the running sums to be averaged in the future, and reset counters to zero
+    Adds a Person's hourly counters to the running sums to be averaged in the future, and reset counters to zero.
+    A Person's counters list is structured as so:
+    0 - daily steps waiting, 1 - hourly steps waiting, 2 - daily steps traveling, 3 - hourly steps traveling
 
     Takes:
     person - Person class
     """
     def handle_hourly_person_counters(self, person):
-        self.hourly_avg_person_waiting_steps[-1] += person.hourly_steps_waiting
-        self.hourly_avg_person_traveling_steps[-1] += person.hourly_steps_traveling
-        person.hourly_steps_waiting = 0
-        person.hourly_steps_traveling = 0
+        self.hourly_avg_person_waiting_steps[-1] += person.counters[1]
+        self.hourly_avg_person_traveling_steps[-1] += person.counters[3]
+
+        person.counters[1] = 0
+        person.counters[3] = 0
+
+        #self.hourly_avg_person_waiting_steps[-1] += person.hourly_steps_waiting
+        #self.hourly_avg_person_traveling_steps[-1] += person.hourly_steps_traveling
+        #person.hourly_steps_waiting = 0
+        #person.hourly_steps_traveling = 0
     
     """
-    Adds an Elevator's daily counters to the running sums to be averaged in the future, and reset counters to zero
+    Adds an Elevator's daily counters to the running sums to be averaged in the future, and reset counters to zero.
+    An Elevator's counters list is structured as so:
+    0 - daily steps idle, 1 - hourly steps idle, 2 - daily steps active,
+    3 - hourly steps active, 4 - daily steps stopped, 5 - hourly steps stopped
 
     Takes:
     elevator - Elevator class
     """
     def handle_daily_elevator_counters(self, elevator):
-        self.daily_avg_elevator_active_steps[-1] += elevator.daily_steps_active
-        self.daily_avg_elevator_idle_steps[-1] += elevator.daily_steps_idle
-        self.daily_avg_elevator_stopped_steps[-1] += elevator.daily_steps_stopped
-        elevator.daily_steps_active = 0
-        elevator.daily_steps_idle = 0
-        elevator.daily_steps_stopped = 0
+        self.daily_avg_elevator_idle_steps[-1] += elevator.counters[0]
+        self.daily_avg_elevator_active_steps[-1] += elevator.counters[2]
+        self.daily_avg_elevator_stopped_steps[-1] += elevator.counters[4]
+        elevator.counters[0] = 0
+        elevator.counters[2] = 0
+        elevator.counters[4] = 0
+
+        #self.daily_avg_elevator_active_steps[-1] += elevator.daily_steps_active
+        #self.daily_avg_elevator_idle_steps[-1] += elevator.daily_steps_idle
+        #self.daily_avg_elevator_stopped_steps[-1] += elevator.daily_steps_stopped
+        #elevator.daily_steps_active = 0
+        #elevator.daily_steps_idle = 0
+        #elevator.daily_steps_stopped = 0
 
     """
-    Adds an Elevator's hourly counters to the running sums to be averaged in the future, and reset counters to zero
+    Adds an Elevator's hourly counters to the running sums to be averaged in the future, and reset counters to zero.
+    An Elevator's counters list is structured as so:
+    0 - daily steps idle, 1 - hourly steps idle, 2 - daily steps active,
+    3 - hourly steps active, 4 - daily steps stopped, 5 - hourly steps stopped
 
     Takes:
     elevator - Elevator class
     """
     def handle_hourly_elevator_counters(self, elevator):
-        self.hourly_avg_elevator_active_steps[-1] += elevator.hourly_steps_active
-        self.hourly_avg_elevator_idle_steps[-1] += elevator.hourly_steps_idle
-        self.hourly_avg_elevator_stopped_steps[-1] += elevator.hourly_steps_stopped
-        elevator.hourly_steps_active = 0
-        elevator.hourly_steps_idle = 0
-        elevator.hourly_steps_stopped = 0
+        self.hourly_avg_elevator_idle_steps[-1] += elevator.counters[1]
+        self.hourly_avg_elevator_active_steps[-1] += elevator.counters[3]
+        self.hourly_avg_elevator_stopped_steps[-1] += elevator.counters[5]
+        elevator.counters[1] = 0
+        elevator.counters[3] = 0
+        elevator.counters[5] = 0
+
+        #self.hourly_avg_elevator_active_steps[-1] += elevator.hourly_steps_active
+        #self.hourly_avg_elevator_idle_steps[-1] += elevator.hourly_steps_idle
+        #self.hourly_avg_elevator_stopped_steps[-1] += elevator.hourly_steps_stopped
+        #elevator.hourly_steps_active = 0
+        #elevator.hourly_steps_idle = 0
+        #elevator.hourly_steps_stopped = 0
 
     """
     Computes all daily step averages for today and append the value to this class's lists.

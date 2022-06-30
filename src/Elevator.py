@@ -23,18 +23,18 @@ class Elevator:
     # List of floors to stop at going up (includes destination floors and requested external stops where new people will get on elevator). Order of list does not represent stopping order.
     down_stops = []
 
-    # Arrays counting the number of simulation steps an Elevator spends idle and active
-    #steps_idle = np.zeros((7,))
-    #steps_active = np.zeros((7,))
-    #steps_stopped = np.zeros((7,))
-    # EXPERIMENTAL
-    # EXPERIMENTAL
-    daily_steps_idle = 0
-    hourly_steps_idle = 0
-    daily_steps_active = 0
-    hourly_steps_active = 0
-    daily_steps_stopped = 0
-    hourly_steps_stopped = 0
+    # Counters used to track how many steps are spent in various states (idle, active, stopped)
+    #daily_steps_idle = 0
+    #hourly_steps_idle = 0
+    #daily_steps_active = 0
+    #hourly_steps_active = 0
+    #daily_steps_stopped = 0
+    #hourly_steps_stopped = 0
+
+    # List of integers used to count simulation steps spent in various states
+    # Idxs and uses: 0 - daily steps idle, 1 - hourly steps idle, 2 - daily steps active,
+    #                3 - hourly steps active, 4 - daily steps stopped, 5 - hourly steps stopped
+    counters = np.zeros((6,), dtype=int)
 
     """
     
@@ -51,12 +51,11 @@ class Elevator:
         self.capacity = capacity
         self.cur_floor = starting_floor
         self.steps_per_stop = steps_per_stop
+        
         # Ensure memory is unique per instance
         self.people_by_destination = deepcopy(self.people_by_destination)
         self.up_stops = deepcopy(self.up_stops)
         self.down_stops = deepcopy(self.down_stops)
-        #self.steps_idle = deepcopy(self.steps_idle)
-        #self.steps_active = deepcopy(self.steps_active)
-        #self.steps_stopped = deepcopy(self.steps_stopped)
+        self.counters = deepcopy(self.counters)
 
         

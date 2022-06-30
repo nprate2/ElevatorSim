@@ -65,7 +65,7 @@ class TestSimulation(unittest.TestCase):
     """
     Asserts that handle_state_change correctly updates a Building when a Person needs to change state.
     """
-    def test_handle_state_change(self):
+    def test_handle_state_change_scheduled(self):
         day = 0
         home_floor_id = 1
         person = self.building.floors[home_floor_id].people_on_floor[0] # Only person on 2nd floor
@@ -77,7 +77,7 @@ class TestSimulation(unittest.TestCase):
         self.assertEqual(1, self.building.floors[home_floor_id].people_on_floor[0].state_change_ids[day][0, 1])
         self.assertEqual([0], self.building.floors[home_floor_id].people_on_floor[0].dest_floors_by_state_name["class"])
 
-        Simulation.handle_state_change(self.building, day, person) # The function we are testing
+        Simulation.handle_state_change_scheduled(self.building, day, person) # The function we are testing
         # What should happen: Person needs to travel down to first floor. Person should be removed from people_on_floor and added to people_going_down on the same floor.
         # This is the first person to be added to people_going_down, so the floor's is_down_pressed should be updated and the floor id should be added to the building's floors_new_down_button.
         self.assertEqual([], self.building.floors[home_floor_id].people_on_floor)
@@ -89,7 +89,10 @@ class TestSimulation(unittest.TestCase):
         return 
 
     # Covered by test above
-    def test_handle_state_changes(self):
+    def test_handle_state_changes_scheduled(self):
+        return
+
+    def test_handle_state_changes_randomly(self):
         return
 
     """
@@ -170,6 +173,12 @@ class TestSimulation(unittest.TestCase):
     def test_handle_new_button_presses(self):
         return
 
+    def test_handle_onboard_up(self):
+        return
+
+    def test_handle_onboard_down(self):
+        return
+        
     """
     handle_onboard(building, elevator):
 
