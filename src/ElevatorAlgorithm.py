@@ -76,23 +76,23 @@ def assign_stop_SWS(elevators, floor_id, direction):
 
     # Check if there is an idle elevator on the correct floor
     for i in range(len(elevators)):
-        if not elevators[i].is_moving and elevators[i].cur_floor == floor_id:
+        if elevators[i].is_idle and elevators[i].cur_floor == floor_id:
+            elevators[i].is_idle = False
+            elevators[i].is_active = True
             if direction == "up":
                 elevators[i].up_stops.append(floor_id)
-                # Need to change state of Elevator here in case multiple stops need to be assigned during one simulation tick
-                elevators[i].is_moving = True
+                # Need to change state of Elevator to active here in case multiple stops need to be assigned during one simulation tick
                 elevators[i].is_moving_up = True
             else:
                 elevators[i].down_stops.append(floor_id)
                 # Need to change state of Elevator here in case multiple stops need to be assigned during one simulation tick
-                elevators[i].is_moving = True
                 elevators[i].is_moving_up = False
             return True
     # Sort Elevators into elevators_moving_towards and elevators_idle
     elevators_moving_towards = []
     elevators_idle = []
     for i in range(len(elevators)):
-        if elevators[i].is_moving:
+        if elevators[i].is_active:
             if direction == "up":
                 # Check if Elevator is moving up towards floor_id
                 if elevators[i].cur_floor < floor_id and elevators[i].is_moving_up and elevators[i].deidled_floor == -1:
@@ -132,7 +132,8 @@ def assign_stop_SWS(elevators, floor_id, direction):
             # Idle Elevator is below floor_id
             elevators_idle[min_idx].up_stops.append(floor_id)
             # Need to change state of Elevator here in case multiple stops need to be assigned during one simulation tick
-            elevators_idle[min_idx].is_moving = True
+            elevators_idle[min_idx].is_idle = False
+            elevators_idle[min_idx].is_active = True
             elevators_idle[min_idx].is_moving_up = True
             elevators_idle[min_idx].deidled_floor = floor_id
             elevators_idle[min_idx].deidled_floor_direction = direction
@@ -140,7 +141,8 @@ def assign_stop_SWS(elevators, floor_id, direction):
             # Idle Elevator is above floor_id
             elevators_idle[min_idx].down_stops.append(floor_id)
             # Need to change state of Elevator here in case multiple stops need to be assigned during one simulation tick
-            elevators_idle[min_idx].is_moving = True
+            elevators_idle[min_idx].is_idle = False
+            elevators_idle[min_idx].is_active = True
             elevators_idle[min_idx].is_moving_up = False
             elevators_idle[min_idx].deidled_floor = floor_id
             elevators_idle[min_idx].deidled_floor_direction = direction      
@@ -177,16 +179,16 @@ def assign_stop_RT(elevators, floor_id, direction):
 
     # Check if there is an idle elevator on the correct floor
     for i in range(len(elevators)):
-        if not elevators[i].is_moving and elevators[i].cur_floor == floor_id:
+        if elevators[i].is_idle and elevators[i].cur_floor == floor_id:
+            elevators[i].is_idle = False
+            elevators[i].is_active = True
             if direction == "up":
                 elevators[i].up_stops.append(floor_id)
                 # Need to change state of Elevator here in case multiple stops need to be assigned during one simulation tick
-                elevators[i].is_moving = True
                 elevators[i].is_moving_up = True
             else:
                 elevators[i].down_stops.append(floor_id)
                 # Need to change state of Elevator here in case multiple stops need to be assigned during one simulation tick
-                elevators[i].is_moving = True
                 elevators[i].is_moving_up = False
             return True
     # Sort Elevators into elevators_moving_towards, elevators_idle, and elevators_returning
@@ -197,7 +199,7 @@ def assign_stop_RT(elevators, floor_id, direction):
         if elevators[i].is_returning:
             elevators_returning.append(elevators[i])
 
-        elif elevators[i].is_moving:
+        elif elevators[i].is_active:
             if direction == "up":
                 # Check if Elevator is moving up towards floor_id
                 if elevators[i].cur_floor < floor_id and elevators[i].is_moving_up and elevators[i].deidled_floor == -1:
@@ -258,7 +260,8 @@ def assign_stop_RT(elevators, floor_id, direction):
             # Idle Elevator is below floor_id
             elevators_idle[min_idle_idx].up_stops.append(floor_id)
             # Need to change state of Elevator here in case multiple stops need to be assigned during one simulation tick
-            elevators_idle[min_idle_idx].is_moving = True
+            elevators_idle[min_idle_idx].is_idle = False
+            elevators_idle[min_idle_idx].is_active = True
             elevators_idle[min_idle_idx].is_moving_up = True
             elevators_idle[min_idle_idx].deidled_floor = floor_id
             elevators_idle[min_idle_idx].deidled_floor_direction = direction
@@ -266,7 +269,8 @@ def assign_stop_RT(elevators, floor_id, direction):
             # Idle Elevator is above floor_id
             elevators_idle[min_idle_idx].down_stops.append(floor_id)
             # Need to change state of Elevator here in case multiple stops need to be assigned during one simulation tick
-            elevators_idle[min_idle_idx].is_moving = True
+            elevators_idle[min_idle_idx].is_idle = False
+            elevators_idle[min_idle_idx].is_active = True
             elevators_idle[min_idle_idx].is_moving_up = False
             elevators_idle[min_idle_idx].deidled_floor = floor_id
             elevators_idle[min_idle_idx].deidled_floor_direction = direction      
@@ -274,7 +278,7 @@ def assign_stop_RT(elevators, floor_id, direction):
     else:
         # Nearest Elevator is returning
         elevators_returning[min_returning_idx].is_returning = False
-        elevators_returning[min_returning_idx].is_moving = True
+        elevators_returning[min_returning_idx].is_active = True
         elevators_returning[min_returning_idx].deidled_floor = floor_id
         elevators_returning[min_returning_idx].deidled_floor_direction = direction
         if elevators_returning[min_returning_idx].cur_floor < floor_id:

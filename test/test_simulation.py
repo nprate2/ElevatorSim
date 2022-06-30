@@ -251,6 +251,14 @@ class TestSimulation(unittest.TestCase):
         self.assertEqual(person2, self.building.floors[1].people_on_floor[0])
         return
 
+    def test_update_returning_elevators(self):
+        self.assertEqual(1, 0)
+        return
+    
+    def test_handle_active_elevator_state_change(self):
+        self.assertEqual(1, 0)
+        return
+
     """
     Asserts that update_active_up_elevator correctly updates an active Elevator.
     """

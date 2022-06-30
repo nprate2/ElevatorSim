@@ -28,7 +28,61 @@ update_elevators(building)
 """
 
 
+"""
+Sets the state of an Elevator to active.
 
+Takes:
+elevator - Elevator class
+is_moving_up - Boolean representing whether the Elevator will move up or down
+"""
+def set_elevator_active(elevator, is_moving_up):
+    elevator.is_active = True
+    elevator.is_moving_up = is_moving_up
+
+    elevator.is_idle = False
+    elevator.is_stopped = False
+    elevator.is_returning = False
+
+"""
+Sets the state of an Elevator to idle.
+
+Takes:
+elevator - Elevator class
+"""
+def set_elevator_idle(elevator):
+    elevator.is_idle = True
+
+    elevator.is_active = False
+    elevator.is_stopped = False
+    elevator.is_returning = False
+
+"""
+Sets the state of an Elevator to stopped.
+
+Takes:
+elevator - Elevator class
+"""
+def set_elevator_stopped(elevator):
+    elevator.is_stopped = True
+
+    elevator.is_active = False
+    elevator.is_idle = False
+    elevator.is_returning = False
+
+"""
+Sets the state of an Elevator to returning.
+
+Takes:
+elevator - Elevator class
+is_moving_up - Boolean representing whether the Elevator will move up or down
+"""
+def set_elevator_returning(elevator, is_moving_up):
+    elevator.is_returning = True
+    elevator.is_moving_up = is_moving_up
+
+    elevator.is_active = False
+    elevator.is_idle = False
+    elevator.is_stopped = False
 
 """
 Updates a Building when a Person needs to travel down.
@@ -169,23 +223,27 @@ def update_counters(building, day):
                 #person.daily_steps_traveling += 1
                 #person.hourly_steps_traveling += 1
 
-        # Elevator idle, stopped, and active counters
-        if building.elevators[i].is_moving:
-            if building.elevators[i].stopped_steps != 0:
-                building.elevators[i].counters[4:6] += 1
+        # Elevator idle, stopped, active, returning counters
+        if building.elevators[i].is_active:
+            # Elevator is active
+            building.elevators[i].counters[2:4] += 1
+            #building.elevators[i].daily_steps_active += 1
+            #building.elevators[i].hourly_steps_active += 1
 
-                #building.elevators[i].daily_steps_stopped += 1
-                #building.elevators[i].hourly_steps_stopped += 1
-            else:
-                building.elevators[i].counters[2:4] += 1
-
-                #building.elevators[i].daily_steps_active += 1
-                #building.elevators[i].hourly_steps_active += 1
-        else:
+        elif building.elevators[i].is_idle:
+            # Elevator is idle
             building.elevators[i].counters[0:2] += 1
-
             #building.elevators[i].daily_steps_idle += 1
             #building.elevators[i].hourly_steps_idle += 1
+
+        elif building.elevators[i].is_stopped:
+            # Elevator is stopped
+            building.elevators[i].counters[4:6] += 1
+        
+        else:
+            # Elevator is returning
+            building.elevators[i].counters[6:8] += 1
+
 
 """
 Assigns all Floors within the Building's "floors_new_up_button" list to one of the Building's Elevators. Utilizes the ElevatorAlgorithm of the Building.
@@ -346,7 +404,7 @@ def update_returning_elevators(building, returning_elevators):
         if elevator.cur_floor == elevator.return_to_floor:
             # Elevator should become idle
             elevator.is_returning = False
-            elevator.is_moving = False
+            elevator.is_idle = True
         else:
             # Move Elevator one Floor closer to return_to_floor
             if elevator.is_moving_up:
@@ -371,23 +429,21 @@ elevator - Elevator class that needs to stop being active
 def handle_active_elevator_state_change(building, elevator):
     if building.elevator_algorithm.algorithm == "stay_where_stopped":
         # Elevator becomes idle
-        elevator.is_moving = False
+        set_elevator_idle(elevator)
 
     elif building.elevator_algorithm.algorithm == "return_to":
         # Elevator starts returning
         if elevator.cur_floor == elevator.return_to_floor:
             # Elevator becomes idle because it's already at its return_to_floor
-            elevator.is_moving = False
+            set_elevator_idle(elevator)
 
         elif elevator.cur_floor < elevator.return_to_floor:
             # Elevator is below return_to_floor
-            elevator.is_returning = True
-            elevator.is_moving_up = True
+            set_elevator_returning(elevator, is_moving_up=True)
 
         else:
             # Elevator is above return_to_floor
-            elevator.is_returning = True
-            elevator.is_moving_up = False
+            set_elevator_returning(elevator, is_moving_up=False)
 
 """
 Updates an active Elevator travelling up in a Building each tick of simulation.
@@ -403,26 +459,10 @@ def update_active_up_elevator(building, elevator):
     if elevator.cur_floor >= len(building.floors):
         print("update active up too large")
         exit()
-    # Check if elevator has stopped_steps remaining (it is in the process of onloading or offloading Persons)
-    if elevator.stopped_steps != 0:
-        elevator.stopped_steps -= 1
-
-        if elevator.stopped_steps == 0:
-            # If this was the last step to spend onboarding/offloading, then we check if the elevator has more stops or if it should become idle
-            if len(elevator.up_stops) == 0:
-                if len(elevator.down_stops) == 0:
-                    handle_active_elevator_state_change(building, elevator)
-
-                else:
-                    # Then this Elevator switches direction of travel (from up to down)
-                    elevator.is_moving_up = False
-            else:
-                # More up stops
-                elevator.cur_floor += 1 # Increment the cur_floor to signify moving up a floor
-        return # If stopped, the elevator does nothing.
     
     if elevator.cur_floor in elevator.up_stops:
         elevator.stopped_steps = elevator.steps_per_stop # If Elevator is stopping to onboard or offload Persons, set stopped_steps counter
+        set_elevator_stopped(elevator)
 
         # Handle people that want to onboard
         handle_onboard(building, elevator)
@@ -456,26 +496,10 @@ def update_active_down_elevator(building, elevator):
     if elevator.cur_floor >= len(building.floors):
         print("update active down too large")
         exit()
-    # Check if elevator has stopped_steps remaining (it is in the process of onloading or offloading Persons)
-    if elevator.stopped_steps != 0:
-        elevator.stopped_steps -= 1
-
-        if elevator.stopped_steps == 0:
-            # If this was the last step to spend onboarding/offloading, then we check if the elevator has more stops or if it should become idle
-            if len(elevator.down_stops) == 0:
-                if len(elevator.up_stops) == 0:
-                    handle_active_elevator_state_change(building, elevator)
-                    
-                else:
-                    # Then this Elevator switches direction of travel (from down to up)
-                    elevator.is_moving_up = True
-            else:
-                # More down stops
-                elevator.cur_floor -= 1 # Decrement the cur_floor to signify the Elevator moving down a floor
-        return # If stopped, the elevator does nothing.
-
+    
     if elevator.cur_floor in elevator.down_stops:
         elevator.stopped_steps = elevator.steps_per_stop # If Elevator is stopping to onboard Persons, set stopped_steps counter
+        set_elevator_stopped(elevator)
 
         # Handle people that want to onboard
         handle_onboard(building, elevator)
@@ -510,8 +534,41 @@ def update_active_elevators(building, active_elevators):
         else: # Elevator moving down
             update_active_down_elevator(building, active_elevators[i])
 
+"""
+This function is called by update_stopped_elevators when an Elevator finishes a stop (its stopped_steps counter reaches 0).
 
+Takes:
+building - Building class
+elevator - Elevator class that is finished with its stop
+"""
+def handle_stopped_elevator_state_change(building, elevator):
+    if len(elevator.down_stops) == 0:
+        if len(elevator.up_stops) == 0:
+            # If there are no more stops to make, the active Elevator either becomes idle or returning
+            handle_active_elevator_state_change(building, elevator)
 
+        else:
+            # Then this Elevator switches direction of travel
+            elevator.is_moving_up = not elevator.is_moving_up
+    else:
+        # More stops
+        set_elevator_active(elevator, is_moving_up=elevator.is_moving_up)
+
+"""
+Updates all stopped Elevators in a Building each tick of simulation.
+
+Takes:
+building - Building 
+active_elevators - list of Elevators that are stopped
+"""
+def update_stopped_elevators(building, stopped_elevators):
+    for elevator in stopped_elevators:
+        elevator.stopped_steps -= 1
+
+        if elevator.stopped_steps == 0:
+            handle_stopped_elevator_state_change(building, elevator)
+
+    return
 
 """
 Updates all idle Elevators in a Building each tick of simulation.
@@ -525,14 +582,12 @@ def update_idle_elevators(building, idle_elevators):
         if len(idle_elevator.up_stops) != 0:
             # Set Elevator to active going up
             print("set elev " + str(idle_elevator.id) + " active going up")
-            idle_elevator.is_moving = True
-            idle_elevator.is_moving_up = True
+            set_elevator_active(idle_elevator, is_moving_up=True)
 
         elif len(idle_elevator.down_stops) != 0:
             # Set Elevator to active doing down
             print("set elev " + str(idle_elevator.id) + " active going down")
-            idle_elevator.is_moving = True
-            idle_elevator.is_moving_up = False
+            set_elevator_active(idle_elevator, is_moving_up=False)
 
 
 """
@@ -544,14 +599,18 @@ building - Building class
 def update_elevators(building):
     returning_elevators = []
     active_elevators = []
+    stopped_elevators = []
     idle_elevators = []
-    # Find returning, active, and idle elevators
+    # Find returning, active, stopped, and idle elevators
     for i in range(len(building.elevators)):
         if building.elevators[i].is_returning:
             returning_elevators.append(building.elevators[i])
 
-        elif building.elevators[i].is_moving:
+        elif building.elevators[i].is_active:
             active_elevators.append(building.elevators[i])
+        
+        elif building.elevators[i].is_stopped:
+            stopped_elevators.append(building.elevators[i])
 
         else:
             idle_elevators.append(building.elevators[i])
@@ -559,4 +618,5 @@ def update_elevators(building):
     # Update returning, active, and idle elevators
     update_returning_elevators(building, returning_elevators)
     update_active_elevators(building, active_elevators)
+    update_stopped_elevators(building, stopped_elevators)
     update_idle_elevators(building, idle_elevators)

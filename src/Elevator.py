@@ -7,6 +7,11 @@ class Elevator:
     steps_per_stop = 0
 
     cur_floor = -1
+    is_active = False
+    is_idle = False
+    is_stopped = False
+    is_returning = False
+
     is_moving = False # Used to know if an Elevator is moving.
     is_moving_up = False # Used to know the direction of a moving Elevator.
     is_returning = False # Used to know if an Elevator is returning to a floor.
@@ -38,7 +43,8 @@ class Elevator:
     # List of integers used to count simulation steps spent in various states
     # Idxs and uses: 0 - daily steps idle, 1 - hourly steps idle, 2 - daily steps active,
     #                3 - hourly steps active, 4 - daily steps stopped, 5 - hourly steps stopped
-    counters = np.zeros((6,), dtype=int)
+    #                6 - daily steps returning, 7 - hourly steps returning
+    counters = np.zeros((8,), dtype=int)
 
     """
     

@@ -106,7 +106,7 @@ class Building:
             #print("People going down:", len(self.floors[i].people_going_down))
         
         
-        """
+        
         print("-----ELEVATORS-----\n")
         for i in range(len(self.elevators)):
             print("Elevator:", i)
@@ -129,7 +129,7 @@ class Building:
             print("\n")
             if len(self.elevators[i].up_stops) > 0 or len(self.elevators[i].down_stops) > 0:
                 self.debug_simulation_loop = True
-        """
+        
         if self.debug_simulation_loop:
             input("Enter to continue")
             

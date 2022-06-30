@@ -1,5 +1,6 @@
 from copy import deepcopy
 import matplotlib.pyplot as plt
+import numpy as np
 
 import constants
 
@@ -265,6 +266,29 @@ class Analytics:
         if step % int(constants.steps_per_hour) == 0 and step != 0:
             self.compute_hourly_step_averages(building)
         return
+
+
+    def print_defining_averages(self, building):
+        #avg_daily_person_wait_time_seconds = self.steps_to_seconds(np.sum(self.daily_avg_person_waiting_steps) / len(constants.days_of_week))
+        avg_hourly_person_wait_time_seconds = self.steps_to_seconds(np.sum(self.hourly_avg_person_waiting_steps) / constants.hours_per_day)
+        print("Avg Hourly Person Wait Time (seconds):", avg_hourly_person_wait_time_seconds )
+        avg_hourly_person_wait_time_minutes = self.steps_to_minutes(np.sum(self.hourly_avg_person_waiting_steps) / constants.hours_per_day)
+        print("Avg Hourly Person Wait Time (minutes):", avg_hourly_person_wait_time_minutes )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     """
     Graphs all daily step averages.

@@ -7,7 +7,7 @@ import Simulation
 import constants
 
 state_names = ["freetime", "class", "sleep", "meal", "exercise", "shop", "chores", "study"]
-HERE_floor_populations = [0, 0, 0, 0, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10]
+HERE_floor_populations = [0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
 HERE_dest_floors_by_state_name = {
     "freetime": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14], # Person can go anywhere during freetime
     "class": [0], # Must go to ground floor for in person class
@@ -32,7 +32,7 @@ for day in tqdm(range(7)): # Persons' Schedules are weekly, so be sure to mod 'd
 
         Simulation.handle_state_changes_scheduled(building, day, step) # First. Check if anybody not waiting for an elevator needs to start doing so.
         #Simulation.handle_state_changes_randomly(building) # First. Check if anybody not waiting for an elevator needs to start doing so.
-        #building.print_building_state() 
+        building.print_building_state() 
         Simulation.handle_new_button_presses(building)
 
         Simulation.update_elevators(building) # Update all Elevators, active and idle. (handles stopping to onboard, offload, switching from active to idle or visa versa, moving Persons from Elevators to Floors or visa versa, etc.)
@@ -41,8 +41,10 @@ for day in tqdm(range(7)): # Persons' Schedules are weekly, so be sure to mod 'd
 analytics.compute_daily_step_averages(building)
 analytics.compute_hourly_step_averages(building)
 
-analytics.graph_daily_step_averages()
-analytics.graph_hourly_step_averages()
-analytics.graph_daily_minute_averages()
-analytics.graph_hourly_minute_averages()
+analytics.print_defining_averages(building)
+
+#analytics.graph_daily_step_averages()
+#analytics.graph_hourly_step_averages()
+#analytics.graph_daily_minute_averages()
+#analytics.graph_hourly_minute_averages()
         
