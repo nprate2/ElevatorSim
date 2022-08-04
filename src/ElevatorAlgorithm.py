@@ -80,13 +80,12 @@ def assign_stop_SWS(elevators, floor_id, direction):
         if elevators[i].is_idle and elevators[i].cur_floor == floor_id:
             elevators[i].is_idle = False
             elevators[i].is_active = True
+
             if direction == "up":
                 elevators[i].up_stops.append(floor_id)
-                # Need to change state of Elevator to active here in case multiple stops need to be assigned during one simulation tick
                 elevators[i].is_moving_up = True
             else:
                 elevators[i].down_stops.append(floor_id)
-                # Need to change state of Elevator here in case multiple stops need to be assigned during one simulation tick
                 elevators[i].is_moving_up = False
             return True
     # Sort Elevators into elevators_moving_towards and elevators_idle

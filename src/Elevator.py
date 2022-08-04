@@ -4,11 +4,11 @@ import numpy as np
 class Elevator:
     id = -1
     capacity = -1
-    steps_per_stop = 0
+    steps_per_load = 0
 
     cur_floor = -1
     is_active = False
-    is_idle = False
+    is_idle = True
     is_loading = False
     is_returning = False
 
@@ -56,15 +56,15 @@ class Elevator:
     id - integer representing id of the Elevator
     capacity - integer representing capacity of the Elevator
     starting_floor - integer representing initial position of the Elevator at start of simulation
-    steps_per_stop - integer representing the number of simulation steps the Elevator takes to onload/offload Persons
+    steps_per_load - integer representing the number of simulation steps the Elevator takes to onload/offload Persons
 
     Runs in O(1) time.
     """
-    def __init__(self, id, capacity, starting_floor, steps_per_stop, return_to_floor):
+    def __init__(self, id, capacity, starting_floor, steps_per_load, return_to_floor):
         self.id = id
         self.capacity = capacity
         self.cur_floor = starting_floor
-        self.steps_per_stop = steps_per_stop
+        self.steps_per_load = steps_per_load
         self.return_to_floor = return_to_floor
         
         # Ensure memory is unique per instance

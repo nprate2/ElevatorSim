@@ -21,9 +21,9 @@ HERE_dest_floors_by_state_name = {
 HERE_elevator_algorithm = "stay_where_stopped"
 HERE_elevator_starting_floors = [0, 0, 0]
 HERE_elevator_capacities = [10, 10, 10]
-HERE_elevator_steps_per_stops = [2, 2, 2] # Num simulation steps an elevator must pass (doing nothing) each time it stops to onload or offload passengers
+HERE_elevator_steps_per_loads = [2, 2, 2] # Num simulation steps an elevator must pass (doing nothing) each time it stops to onload or offload passengers
 HERE_elevator_return_to_floors = [1, 4, 10]
-building = Building(HERE_floor_populations, HERE_dest_floors_by_state_name, HERE_elevator_algorithm, HERE_elevator_starting_floors, HERE_elevator_capacities, HERE_elevator_steps_per_stops, HERE_elevator_return_to_floors)
+building = Building(HERE_floor_populations, HERE_dest_floors_by_state_name, HERE_elevator_algorithm, HERE_elevator_starting_floors, HERE_elevator_capacities, HERE_elevator_steps_per_loads, HERE_elevator_return_to_floors)
 analytics = Analytics()
 
 for day in tqdm(range(7)): # Persons' Schedules are weekly, so be sure to mod 'day' by 7 (if simulating for more than a week) before passing to handle_state_changes_scheduled()
@@ -36,7 +36,7 @@ for day in tqdm(range(7)): # Persons' Schedules are weekly, so be sure to mod 'd
         Simulation.handle_new_button_presses(building)
 
         Simulation.update_elevators(building) # Update all Elevators, active and idle. (handles stopping to onboard, offload, switching from active to idle or visa versa, moving Persons from Elevators to Floors or visa versa, etc.)
-        Simulation.update_counters(building, day) # Last. Update the counters of anybody waiting for an elevator or anybody traveling on an elevator.
+        Simulation.increment_counters(building, day) # Last. Update the counters of anybody waiting for an elevator or anybody traveling on an elevator.
 
 analytics.compute_daily_step_averages(building)
 analytics.compute_hourly_step_averages(building)

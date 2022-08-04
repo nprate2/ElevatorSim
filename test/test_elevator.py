@@ -9,7 +9,7 @@ class TestElevator(unittest.TestCase):
     def setUpClass(self):
         self.elevators = []
         for i in range(10):
-            self.elevators.append(Elevator(id=i, capacity=i, starting_floor=i, steps_per_stop=i, return_to_floor=0))
+            self.elevators.append(Elevator(id=i, capacity=i, starting_floor=i, steps_per_load=i, return_to_floor=0))
         return
 
     """
@@ -21,7 +21,7 @@ class TestElevator(unittest.TestCase):
             self.assertEqual(i, self.elevators[i].id)
             self.assertEqual(i, self.elevators[i].capacity)
             self.assertEqual(i, self.elevators[i].cur_floor)
-            self.assertEqual(i, self.elevators[i].steps_per_stop)
+            self.assertEqual(i, self.elevators[i].steps_per_load)
 
     """
     Asserts that people_by_destination, up_stops, down_stops, idle_counters, active_counters, loading_counters, and returning_counters use unique memory for each Elevator

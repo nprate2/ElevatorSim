@@ -461,7 +461,7 @@ def update_active_up_elevator(building, elevator):
         exit()
     
     if elevator.cur_floor in elevator.up_stops:
-        elevator.loading_steps = elevator.steps_per_stop # If Elevator is stopping to onboard or offload Persons, set loading_steps counter
+        elevator.loading_steps = elevator.steps_per_load # If Elevator is stopping to onboard or offload Persons, set loading_steps counter
         set_elevator_loading(elevator)
 
         # Handle people that want to onboard
@@ -498,7 +498,7 @@ def update_active_down_elevator(building, elevator):
         exit()
     
     if elevator.cur_floor in elevator.down_stops:
-        elevator.loading_steps = elevator.steps_per_stop # If Elevator is stopping to onboard Persons, set loading_steps counter
+        elevator.loading_steps = elevator.steps_per_load # If Elevator is stopping to onboard Persons, set loading_steps counter
         set_elevator_loading(elevator)
 
         # Handle people that want to onboard
