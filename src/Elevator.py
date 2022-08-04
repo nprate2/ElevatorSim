@@ -9,13 +9,13 @@ class Elevator:
     cur_floor = -1
     is_active = False
     is_idle = False
-    is_stopped = False
+    is_loading = False
     is_returning = False
 
     is_moving = False # Used to know if an Elevator is moving.
     is_moving_up = False # Used to know the direction of a moving Elevator.
     is_returning = False # Used to know if an Elevator is returning to a floor.
-    stopped_steps = 0 # Used to keep an Elevator stationary when it stops to onload or offload Persons
+    loading_steps = 0 # Used to keep an Elevator stationary when it stops to onload or offload Persons
 
     # When a Floor's new button press causes an Elevator to switch from idle to active, deidled_floor is set to this floor.
     deidled_floor = -1 # Used by ElevatorAlgorithm to avoid assigning stops to an Elevator until it reaches its deidled_floor (causes faults otherwise)
@@ -32,19 +32,23 @@ class Elevator:
     # List of floors to stop at going up (includes destination floors and requested external stops where new people will get on elevator). Order of list does not represent stopping order.
     down_stops = []
 
-    # Counters used to track how many steps are spent in various states (idle, active, stopped)
+    # Counters used to track how many steps are spent in various states (idle, active, loading)
     #daily_steps_idle = 0
     #hourly_steps_idle = 0
     #daily_steps_active = 0
     #hourly_steps_active = 0
-    #daily_steps_stopped = 0
-    #hourly_steps_stopped = 0
+    #daily_steps_loading = 0
+    #hourly_steps_loading = 0
 
     # List of integers used to count simulation steps spent in various states
     # Idxs and uses: 0 - daily steps idle, 1 - hourly steps idle, 2 - daily steps active,
-    #                3 - hourly steps active, 4 - daily steps stopped, 5 - hourly steps stopped
+    #                3 - hourly steps active, 4 - daily steps loading, 5 - hourly steps loading
     #                6 - daily steps returning, 7 - hourly steps returning
-    counters = np.zeros((8,), dtype=int)
+    #counters = np.zeros((8,), dtype=int)
+    idle_counters = np.zeros((2,), dtype=int)
+    active_counters = np.zeros((2,), dtype=int)
+    loading_counters = np.zeros((2,), dtype=int)
+    returning_counters = np.zeros((2,), dtype=int)
 
     """
     
@@ -67,6 +71,10 @@ class Elevator:
         self.people_by_destination = deepcopy(self.people_by_destination)
         self.up_stops = deepcopy(self.up_stops)
         self.down_stops = deepcopy(self.down_stops)
-        self.counters = deepcopy(self.counters)
+        #self.counters = deepcopy(self.counters)
+        self.idle_counters = deepcopy(self.idle_counters)
+        self.active_counters = deepcopy(self.active_counters)
+        self.loading_counters = deepcopy(self.loading_counters)
+        self.returning_counters = deepcopy(self.returning_counters)
 
         

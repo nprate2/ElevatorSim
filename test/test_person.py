@@ -27,8 +27,8 @@ class TestSchedule(unittest.TestCase):
         self.people = []
         for i in (range(10)):
             person = Person(id=i, home_floor=i, prob_having_visitors=0, avg_num_visitors=0, building_dest_floors_by_state_name=test_dest_floors_by_state_name)
-            person.steps_waiting[0] = i
-            person.steps_traveling[0] = i
+            person.waiting_counters[:,] = i
+            person.riding_counters[:,] = i
         return
 
     """

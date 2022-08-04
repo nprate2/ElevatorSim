@@ -9,13 +9,13 @@ class Analytics:
 
     daily_avg_elevator_idle_steps = []
     daily_avg_elevator_active_steps = []
-    daily_avg_elevator_stopped_steps = []
+    daily_avg_elevator_loading_steps = []
     daily_avg_person_traveling_steps = []
     daily_avg_person_waiting_steps = []
 
     hourly_avg_elevator_idle_steps = []
     hourly_avg_elevator_active_steps = []
-    hourly_avg_elevator_stopped_steps = []
+    hourly_avg_elevator_loading_steps = []
     hourly_avg_person_traveling_steps = []
     hourly_avg_person_waiting_steps = []
     
@@ -25,13 +25,13 @@ class Analytics:
     def __init__(self):
         self.daily_avg_elevator_idle_steps = deepcopy(self.daily_avg_elevator_idle_steps)
         self.daily_avg_elevator_active_steps = deepcopy(self.daily_avg_elevator_active_steps)
-        self.daily_avg_elevator_stopped_steps = deepcopy(self.daily_avg_elevator_stopped_steps)
+        self.daily_avg_elevator_loading_steps = deepcopy(self.daily_avg_elevator_loading_steps)
         self.daily_avg_person_traveling_steps = deepcopy(self.daily_avg_person_traveling_steps)
         self.daily_avg_person_waiting_steps = deepcopy(self.daily_avg_person_waiting_steps)
 
         self.hourly_avg_elevator_idle_steps = deepcopy(self.hourly_avg_elevator_idle_steps)
         self.hourly_avg_elevator_active_steps = deepcopy(self.hourly_avg_elevator_active_steps)
-        self.hourly_avg_elevator_stopped_steps = deepcopy(self.hourly_avg_elevator_stopped_steps)
+        self.hourly_avg_elevator_loading_steps = deepcopy(self.hourly_avg_elevator_loading_steps)
         self.hourly_avg_person_traveling_steps = deepcopy(self.hourly_avg_person_traveling_steps)
         self.hourly_avg_person_waiting_steps = deepcopy(self.hourly_avg_person_waiting_steps)
 
@@ -115,7 +115,7 @@ class Analytics:
     Adds an Elevator's daily counters to the running sums to be averaged in the future, and reset counters to zero.
     An Elevator's counters list is structured as so:
     0 - daily steps idle, 1 - hourly steps idle, 2 - daily steps active,
-    3 - hourly steps active, 4 - daily steps stopped, 5 - hourly steps stopped
+    3 - hourly steps active, 4 - daily steps loading, 5 - hourly steps loading
 
     Takes:
     elevator - Elevator class
@@ -123,23 +123,23 @@ class Analytics:
     def handle_daily_elevator_counters(self, elevator):
         self.daily_avg_elevator_idle_steps[-1] += elevator.counters[0]
         self.daily_avg_elevator_active_steps[-1] += elevator.counters[2]
-        self.daily_avg_elevator_stopped_steps[-1] += elevator.counters[4]
+        self.daily_avg_elevator_loading_steps[-1] += elevator.counters[4]
         elevator.counters[0] = 0
         elevator.counters[2] = 0
         elevator.counters[4] = 0
 
         #self.daily_avg_elevator_active_steps[-1] += elevator.daily_steps_active
         #self.daily_avg_elevator_idle_steps[-1] += elevator.daily_steps_idle
-        #self.daily_avg_elevator_stopped_steps[-1] += elevator.daily_steps_stopped
+        #self.daily_avg_elevator_loading_steps[-1] += elevator.daily_steps_loading
         #elevator.daily_steps_active = 0
         #elevator.daily_steps_idle = 0
-        #elevator.daily_steps_stopped = 0
+        #elevator.daily_steps_loading = 0
 
     """
     Adds an Elevator's hourly counters to the running sums to be averaged in the future, and reset counters to zero.
     An Elevator's counters list is structured as so:
     0 - daily steps idle, 1 - hourly steps idle, 2 - daily steps active,
-    3 - hourly steps active, 4 - daily steps stopped, 5 - hourly steps stopped
+    3 - hourly steps active, 4 - daily steps loading, 5 - hourly steps loading
 
     Takes:
     elevator - Elevator class
@@ -147,17 +147,17 @@ class Analytics:
     def handle_hourly_elevator_counters(self, elevator):
         self.hourly_avg_elevator_idle_steps[-1] += elevator.counters[1]
         self.hourly_avg_elevator_active_steps[-1] += elevator.counters[3]
-        self.hourly_avg_elevator_stopped_steps[-1] += elevator.counters[5]
+        self.hourly_avg_elevator_loading_steps[-1] += elevator.counters[5]
         elevator.counters[1] = 0
         elevator.counters[3] = 0
         elevator.counters[5] = 0
 
         #self.hourly_avg_elevator_active_steps[-1] += elevator.hourly_steps_active
         #self.hourly_avg_elevator_idle_steps[-1] += elevator.hourly_steps_idle
-        #self.hourly_avg_elevator_stopped_steps[-1] += elevator.hourly_steps_stopped
+        #self.hourly_avg_elevator_loading_steps[-1] += elevator.hourly_steps_loading
         #elevator.hourly_steps_active = 0
         #elevator.hourly_steps_idle = 0
-        #elevator.hourly_steps_stopped = 0
+        #elevator.hourly_steps_loading = 0
 
     """
     Computes all daily step averages for today and append the value to this class's lists.
@@ -171,7 +171,7 @@ class Analytics:
     def compute_daily_step_averages(self, building):
         self.daily_avg_elevator_idle_steps.append(0.0)
         self.daily_avg_elevator_active_steps.append(0.0)
-        self.daily_avg_elevator_stopped_steps.append(0.0)
+        self.daily_avg_elevator_loading_steps.append(0.0)
         self.daily_avg_person_traveling_steps.append(0.0)
         self.daily_avg_person_waiting_steps.append(0.0)
 
@@ -199,7 +199,7 @@ class Analytics:
         # Divide by totals to get average steps
         self.daily_avg_elevator_idle_steps[-1] /= len(building.elevators)
         self.daily_avg_elevator_active_steps[-1] /= len(building.elevators)
-        self.daily_avg_elevator_stopped_steps[-1] /= len(building.elevators)
+        self.daily_avg_elevator_loading_steps[-1] /= len(building.elevators)
         self.daily_avg_person_traveling_steps[-1] /= building.population
         self.daily_avg_person_waiting_steps[-1] /= building.population
 
@@ -215,7 +215,7 @@ class Analytics:
     def compute_hourly_step_averages(self, building):
         self.hourly_avg_elevator_idle_steps.append(0.0)
         self.hourly_avg_elevator_active_steps.append(0.0)
-        self.hourly_avg_elevator_stopped_steps.append(0.0)
+        self.hourly_avg_elevator_loading_steps.append(0.0)
         self.hourly_avg_person_traveling_steps.append(0.0)
         self.hourly_avg_person_waiting_steps.append(0.0)
 
@@ -245,7 +245,7 @@ class Analytics:
         # Divide by totals to get average steps
         self.hourly_avg_elevator_idle_steps[-1] /= len(building.elevators)
         self.hourly_avg_elevator_active_steps[-1] /= len(building.elevators)
-        self.hourly_avg_elevator_stopped_steps[-1] /= len(building.elevators)
+        self.hourly_avg_elevator_loading_steps[-1] /= len(building.elevators)
         self.hourly_avg_person_traveling_steps[-1] /= building.population
         self.hourly_avg_person_waiting_steps[-1] /= building.population
 
@@ -305,9 +305,9 @@ class Analytics:
         ax2.set_ylim([0, int(constants.steps_per_day)])
         ax2.set_title("Steps Active")
 
-        ax3.plot(constants.days_of_week_abbreviations, self.daily_avg_elevator_stopped_steps)
+        ax3.plot(constants.days_of_week_abbreviations, self.daily_avg_elevator_loading_steps)
         ax3.set_ylim([0, int(constants.steps_per_day)])
-        ax3.set_title("Steps Stopped")
+        ax3.set_title("Steps loading")
 
         plt.show()
 
@@ -339,9 +339,9 @@ class Analytics:
         ax2.set_ylim([0, int(constants.steps_per_hour)])
         ax2.set_title("Steps Active")
 
-        ax3.plot(self.hourly_avg_elevator_stopped_steps)
+        ax3.plot(self.hourly_avg_elevator_loading_steps)
         ax3.set_ylim([0, int(constants.steps_per_hour)])
-        ax3.set_title("Steps Stopped")
+        ax3.set_title("Steps loading")
 
         plt.show()
 
@@ -373,9 +373,9 @@ class Analytics:
         ax2.set_ylim([0, int(constants.minutes_per_day)])
         ax2.set_title("Minutes Active")
 
-        ax3.plot(constants.days_of_week_abbreviations, list(map(self.steps_to_minutes, self.daily_avg_elevator_stopped_steps)))
+        ax3.plot(constants.days_of_week_abbreviations, list(map(self.steps_to_minutes, self.daily_avg_elevator_loading_steps)))
         ax3.set_ylim([0, int(constants.minutes_per_day)])
-        ax3.set_title("Minutes Stopped")
+        ax3.set_title("Minutes loading")
 
         plt.show()
 
@@ -407,9 +407,9 @@ class Analytics:
         ax2.set_ylim([0, int(constants.minutes_per_hour)])
         ax2.set_title("Minutes Active")
 
-        ax3.plot(list(map(self.steps_to_minutes, self.hourly_avg_elevator_stopped_steps)))
+        ax3.plot(list(map(self.steps_to_minutes, self.hourly_avg_elevator_loading_steps)))
         ax3.set_ylim([0, int(constants.minutes_per_hour)])
-        ax3.set_title("Minutes Stopped")
+        ax3.set_title("Minutes loading")
 
         plt.show()
 

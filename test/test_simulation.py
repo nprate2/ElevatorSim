@@ -1,5 +1,7 @@
 import unittest
 
+import numpy as np
+
 from src_imports import Simulation
 from src_imports import Building
 from src_imports import Person
@@ -19,6 +21,7 @@ simple_elevator_algorithm = "stay_where_stopped"
 simple_elevator_starting_floors = [0, 0] # Two elevators, both starting at ground floor
 simple_elevator_capacities = [10, 10, 10]
 simple_elevator_steps_per_stops = [5, 5, 5] # Num simulation steps an elevator must pass (doing nothing) each time it stops to onload or offload passengers
+simple_elevator_return_to_floors = [1, 1, 1]
 
 class TestSimulation(unittest.TestCase):
     """
@@ -26,7 +29,7 @@ class TestSimulation(unittest.TestCase):
     """
     def setUp(self):
         # Runs before each test
-        self.building = Building(simple_floor_populations, simple_dest_floors_by_state_name, simple_elevator_algorithm, simple_elevator_starting_floors, simple_elevator_capacities, simple_elevator_steps_per_stops)
+        self.building = Building(simple_floor_populations, simple_dest_floors_by_state_name, simple_elevator_algorithm, simple_elevator_starting_floors, simple_elevator_capacities, simple_elevator_steps_per_stops, simple_elevator_return_to_floors)
 
     """
     state_change_going_down(building, floor_id, person):
@@ -96,26 +99,26 @@ class TestSimulation(unittest.TestCase):
         return
 
     """
-    update_counters(building, day):
+    increment_counters(building, day):
 
-    Increments the steps_waiting, steps_traveling counters for applicable Persons and increments steps_active, steps_idle counters for applicable Elevators
+    Ensures that increment_counters increments the waiting_counters, riding_counters for applicable Persons and increments active_counters, idle_counters for applicable Elevators. 
     """
-    def test_update_counters(self):
-        day = 0 # update_counters takes a day argument so it can store different counters for each day of the week
-        waiting_floor = 0
-        traveling_floor = 1
+    def test_increment_counters(self):
+        day = 0 # increment_counters takes a day argument so it can store different counters for each day of the week
+        person_waiting_floor = 0
+        person_riding_floor = 1
         active_elevator = 0
         idle_elevator = 1
 
         # Set one person to be waiting for an elevator
-        person = self.building.floors[waiting_floor].people_on_floor[0]
-        self.building.floors[waiting_floor].people_going_up.append(person)
-        self.building.floors[waiting_floor].people_on_floor.remove(person)
+        person = self.building.floors[person_waiting_floor].people_on_floor[0]
+        self.building.floors[person_waiting_floor].people_going_up.append(person)
+        self.building.floors[person_waiting_floor].people_on_floor.remove(person)
 
-        # Set one person to be traveling on an elevator
-        person = self.building.floors[traveling_floor].people_on_floor[0]
-        self.building.elevators[active_elevator].people_by_destination[waiting_floor] = [person]
-        self.building.floors[traveling_floor].people_on_floor.remove(person)
+        # Set one person to be riding on an elevator
+        person = self.building.floors[person_riding_floor].people_on_floor[0]
+        self.building.elevators[active_elevator].people_by_destination[person_waiting_floor] = [person]
+        self.building.floors[person_riding_floor].people_on_floor.remove(person)
         
         # Set one elevator to be active
         self.building.elevators[active_elevator].is_moving = True
@@ -123,17 +126,17 @@ class TestSimulation(unittest.TestCase):
         # Set one elevator to be idle (False is default value so this is kind of pointless)
         self.building.elevators[idle_elevator].is_moving = False
 
-        Simulation.update_counters(self.building, day)
+        Simulation.increment_counters(self.building, day)
 
         # Check all four counters got incremented where applicable
-        waiting_person = self.building.floors[waiting_floor].people_going_up[0]
-        self.assertEqual(1, waiting_person.steps_waiting[day])
+        person_waiting = self.building.floors[person_waiting_floor].people_going_up[0]
+        self.assertTrue(([1, 1] == person_waiting.waiting_counters).all())
 
-        traveling_person = self.building.elevators[active_elevator].people_by_destination[waiting_floor][0]
-        self.assertEqual(1, traveling_person.steps_traveling[day])
+        person_riding = self.building.elevators[active_elevator].people_by_destination[person_waiting_floor][0]
+        self.assertTrue(([1, 1] == person_riding.riding_counters).all())
 
-        self.assertEqual(1, self.building.elevators[idle_elevator].steps_idle[day])
-        self.assertEqual(1, self.building.elevators[active_elevator].steps_active[day])
+        self.assertTrue(([1, 1] == self.building.elevators[idle_elevator].idle_counters).all())
+        self.assertTrue(([1, 1] == self.building.elevators[active_elevator].active_counters).all())
         return
 
     """
@@ -252,51 +255,50 @@ class TestSimulation(unittest.TestCase):
         return
 
     def test_update_returning_elevators(self):
-        self.assertEqual(1, 0)
+        self.assertEqual("not", "implemented")
         return
     
     def test_handle_active_elevator_state_change(self):
-        self.assertEqual(1, 0)
+        self.assertEqual("not", "implemented")
         return
 
     """
     Asserts that update_active_up_elevator correctly updates an active Elevator.
     """
     def test_update_active_up_elevator(self):
-        # Test Elevator's cur_floor is not within its up_stops
+        # Test Elevator's cur_floor is not within its up_stops. (When an Elevator is not on a Floor in up_stops, it moves one Floor closer,
+        # but does not update anything else until the next update)
         up_elevator = self.building.elevators[0]
-        up_elevator.is_moving = True
+        up_elevator.is_active = True
         up_elevator.is_moving_up = True
+        up_elevator.is_loading = False
+        up_elevator.is_returning = False
+        
         up_elevator.cur_floor = 0
         up_elevator.up_stops.append(1)
 
         Simulation.update_active_up_elevator(self.building, up_elevator) # This should move the elevator from 1st to 2nd floor (0 to 1 idxs)
-        #up_elevator = self.building.elevators[0]
         self.assertEqual(1, up_elevator.cur_floor) # Elevator's cur_floor should be the 2nd floor
         self.assertEqual(1, up_elevator.up_stops[0]) # 2nd floor should still be in up_stops
-        self.assertEqual(0, up_elevator.stopped_steps) # Should be zero since Elevator hasn't stopped
+        self.assertTrue(([0, 0] == up_elevator.loading_counters).all()) # loading counters should be zero since Elevator hasn't loading yet
 
-        Simulation.update_active_up_elevator(self.building, up_elevator) # This should handle and remove 2nd floor from up_stops
-        #up_elevator = self.building.elevators[0]
-        self.assertEqual(up_elevator.stopped_steps, up_elevator.steps_per_stop) # The Elevator stopped, so stopped_steps should have been set
+        Simulation.update_active_up_elevator(self.building, up_elevator) # This should handle and remove 2nd floor from up_stops (register that the Elevator has loading on the Floor)
+        self.assertTrue(up_elevator.is_loading)
+        self.assertFalse(up_elevator.is_active)
+        self.assertEqual(up_elevator.loading_steps, up_elevator.steps_per_stop) # The Elevator loading, so loading_steps should have been set
         self.assertEqual(0, len(up_elevator.up_stops)) # Stops get removed from up_stops as soon as they are handled
+        self.assertTrue(([1, 1] == up_elevator.loading_counters).all()) # loading counters should have been incremented
 
-        Simulation.update_active_up_elevator(self.building, up_elevator) # This should decrement stopped_steps
-        #up_elevator
-        self.assertEqual(up_elevator.steps_per_stop - 1, up_elevator.stopped_steps) # stopped_steps should be one less than steps_per_stop since it got decremented
-        up_elevator.stopped_steps = 1 # Set stopped_steps to only 1 step remaining
+        Simulation.update_active_up_elevator(self.building, up_elevator) # This should decrement loading_steps
+        self.assertEqual(up_elevator.steps_per_stop - 1, up_elevator.loading_steps) # loading_steps should be one less than steps_per_stop since it got decremented
+        self.assertTrue(([2, 2] == up_elevator.loading_counters).all()) # loading counters should have been incremented again
+        up_elevator.loading_steps = 1 # Set loading_steps to only 1 step remaining
 
         Simulation.update_active_up_elevator(self.building, up_elevator) # Should set Elevator to be idle since it has no more up_stops or down_stops
-        self.assertFalse(up_elevator.is_moving)
-
-        up_elevator.stopped_steps = 1 # Set stopped_steps to only 1 step remaining, Elevator to be moving up, and Elevator to have 1st floor in down_stops
-        up_elevator.is_moving = True
-        up_elevator.is_moving_up = True
-        up_elevator.down_stops.append(0)
-
-        Simulation.update_active_up_elevator(self.building, up_elevator) # Should set Elevator to be active and moving down since it has no more up_stops but does have down_stops
-        self.assertTrue(up_elevator.is_moving)
-        self.assertFalse(up_elevator.is_moving_up)
+        self.assertTrue(up_elevator.is_idle)
+        self.assertFalse(up_elevator.is_active)
+        self.assertFalse(up_elevator.is_loading)
+        self.assertFalse(up_elevator.is_returning)
 
         return
 
@@ -304,40 +306,39 @@ class TestSimulation(unittest.TestCase):
     Asserts that update_active_down_elevator correctly updates an active Elevator.
     """
     def test_update_active_down_elevator(self):
-        # Test Elevator's cur_floor is not within its up_stops
+        # Test Elevator's cur_floor is not within its down_stops. (When an Elevator is not on a Floor in down_stops, it moves one Floor closer,
+        # but does not update anything else until the next update)
         down_elevator = self.building.elevators[0]
-        down_elevator.is_moving = True
+        down_elevator.is_active = True
         down_elevator.is_moving_up = False
+        down_elevator.is_loading = False
+        down_elevator.is_returning = False
+
         down_elevator.cur_floor = 1
         down_elevator.down_stops.append(0)
 
         Simulation.update_active_down_elevator(self.building, down_elevator) # This should move the elevator from 2nd to 1st floor (1 to 0 idxs)
-        #down_elevator = self.building.elevators[0]
         self.assertEqual(0, down_elevator.cur_floor) # Elevator's cur_floor should be the 1st floor
         self.assertEqual(0, down_elevator.down_stops[0]) # 1st floor should still be in down_stops
-        self.assertEqual(0, down_elevator.stopped_steps) # Should be zero since Elevator hasn't stopped
+        self.assertTrue(([0, 0] == down_elevator.loading_counters).all()) # loading counters should be zero since Elevator hasn't loading yet
 
         Simulation.update_active_down_elevator(self.building, down_elevator) # This should handle and remove 1st floor from down_stops
-        #down_elevator = self.building.elevators[0]
-        self.assertEqual(down_elevator.stopped_steps, down_elevator.steps_per_stop) # The Elevator stopped, so stopped_steps should have been set
-        self.assertEqual(0, len(down_elevator.down_stops)) # Stops get removed from down_stops as soon as they are handled
+        self.assertTrue(down_elevator.is_loading)
+        self.assertFalse(down_elevator.is_active)
+        self.assertEqual(down_elevator.loading_steps, down_elevator.steps_per_stop) # The Elevator loading, so loading_steps should have been set
+        self.assertEqual(0, len(down_elevator.up_stops)) # Stops get removed from down_stops as soon as they are handled
+        self.assertTrue(([1, 1] == down_elevator.loading_counters).all()) # loading counters should have been incremented
 
-        Simulation.update_active_down_elevator(self.building, down_elevator) # This should decrement stopped_steps
-        #down_elevator
-        self.assertEqual(down_elevator.steps_per_stop - 1, down_elevator.stopped_steps) # stopped_steps should be one less than steps_per_stop since it got decremented
-        down_elevator.stopped_steps = 1 # Set stopped_steps to only 1 step remaining
+        Simulation.update_active_down_elevator(self.building, down_elevator) # This should decrement loading_steps
+        self.assertEqual(down_elevator.steps_per_stop - 1, down_elevator.loading_steps) # loading_steps should be one less than steps_per_stop since it got decremented
+        self.assertTrue(([2, 2] == down_elevator.loading_counters).all()) # loading counters should have been incremented again
+        down_elevator.loading_steps = 1 # Set loading_steps to only 1 step remaining
 
         Simulation.update_active_down_elevator(self.building, down_elevator) # Should set Elevator to be idle since it has no more down_stops or up_stops
-        self.assertFalse(down_elevator.is_moving)
-
-        down_elevator.stopped_steps = 1 # Set stopped_steps to only 1 step remaining, Elevator to be moving down, and Elevator to have 2nd floor in up_stops
-        down_elevator.is_moving = True
-        down_elevator.is_moving_up = False
-        down_elevator.up_stops.append(1)
-
-        Simulation.update_active_down_elevator(self.building, down_elevator) # Should set Elevator to be active and moving up since it has no more down_stops but does have up_stops
-        self.assertTrue(down_elevator.is_moving)
-        self.assertTrue(down_elevator.is_moving_up)
+        self.assertTrue(down_elevator.is_idle)
+        self.assertFalse(down_elevator.is_active)
+        self.assertFalse(down_elevator.is_loading)
+        self.assertFalse(down_elevator.is_returning)
 
         return
 
@@ -357,10 +358,17 @@ class TestSimulation(unittest.TestCase):
 
         Simulation.update_idle_elevators(self.building, self.building.elevators)
 
-        self.assertTrue(up_elevator.is_moving)
+        self.assertTrue(up_elevator.is_active)
         self.assertTrue(up_elevator.is_moving_up)
-        self.assertTrue(down_elevator.is_moving)
+        self.assertFalse(up_elevator.is_idle)
+        self.assertFalse(up_elevator.is_loading)
+        self.assertFalse(up_elevator.is_returning)
+
+        self.assertTrue(down_elevator.is_active)
         self.assertFalse(down_elevator.is_moving_up)
+        self.assertFalse(up_elevator.is_idle)
+        self.assertFalse(up_elevator.is_loading)
+        self.assertFalse(up_elevator.is_returning)
         return
     
     # Covered by two tests above

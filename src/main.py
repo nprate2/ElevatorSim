@@ -32,7 +32,7 @@ for day in tqdm(range(7)): # Persons' Schedules are weekly, so be sure to mod 'd
 
         Simulation.handle_state_changes_scheduled(building, day, step) # First. Check if anybody not waiting for an elevator needs to start doing so.
         #Simulation.handle_state_changes_randomly(building) # First. Check if anybody not waiting for an elevator needs to start doing so.
-        building.print_building_state() 
+        #building.print_building_state() 
         Simulation.handle_new_button_presses(building)
 
         Simulation.update_elevators(building) # Update all Elevators, active and idle. (handles stopping to onboard, offload, switching from active to idle or visa versa, moving Persons from Elevators to Floors or visa versa, etc.)

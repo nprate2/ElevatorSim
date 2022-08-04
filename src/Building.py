@@ -36,6 +36,7 @@ class Building:
     elevator_starting_floors - list of integers representing Floor ids where each Elevator will "begin" at the start of the simulation.
     elevator_capacities - list of integers representing the maximum amount of Persons that can be onboard each Elevator at any given time.
     elevator_steps_per_stops - list of integers representing the number of steps each Elevator takes to onload/offload/stop at a floor.
+    elevator_return_to_floors - list of integers representing the floor id each Elevator should return to if using any "return" algorithms.
 
     Runs in O(F+E) time, where F is number of Floors and E is number of Elevators
     """
@@ -117,8 +118,8 @@ class Building:
                 print("Cur floor:", self.elevators[i].cur_floor)
 
             print("Moving: " + str(self.elevators[i].is_moving) + ". Up: " + str(self.elevators[i].is_moving_up))
-            if self.elevators[i].stopped_steps != 0:
-                print("Stopped steps:", self.elevators[i].stopped_steps)
+            if self.elevators[i].loading_steps != 0:
+                print("loading steps:", self.elevators[i].loading_steps)
             #print("Is moving up:", self.elevators[i].is_moving_up)
             print("Up stops:", self.elevators[i].up_stops)
             print("Down stops:", self.elevators[i].down_stops)

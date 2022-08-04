@@ -52,7 +52,7 @@ If an elevator is assigned a stop while in the "return to" state, it will switch
 
 """
 Assigns a requested stop to one of the Elevators. (stay_where_stopped algorithm)
-Elevators using stay_where_stopped algorithm can be in "active", "idle", or "stopped" states.
+Elevators using stay_where_stopped algorithm can be in "active", "idle", or "loading" states.
 
 Takes:
 elevators - List of Elevator classes
@@ -64,6 +64,7 @@ assigned - Boolean representing if the requested stop was successfully assigned.
 
 Runs in as litte as O(E) and as long as O(4E) time, where E is number of Elevators
 """
+
 def assign_stop_SWS(elevators, floor_id, direction):
     # Check if there is and Elevator that was previously scheduled to stop at the requested Floor
     for elevator in elevators:
@@ -155,7 +156,7 @@ def assign_stop_SWS(elevators, floor_id, direction):
 
 """
 Assigns a requested stop to one of the Elevators. (return_to algorithm)
-Elevators using return_to algorithm can be in "active", "idle", "stopped", and "returning" states.
+Elevators using return_to algorithm can be in "active", "idle", "loading", and "returning" states.
 
 Takes:
 elevators - List of Elevator classes
