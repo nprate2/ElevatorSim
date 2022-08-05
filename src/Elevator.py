@@ -12,7 +12,7 @@ class Elevator:
     is_loading = False
     is_returning = False
 
-    is_moving = False # Used to know if an Elevator is moving.
+    #is_moving = False # Used to know if an Elevator is moving.
     is_moving_up = False # Used to know the direction of a moving Elevator.
     is_returning = False # Used to know if an Elevator is returning to a floor.
     loading_steps = 0 # Used to keep an Elevator stationary when it stops to onload or offload Persons

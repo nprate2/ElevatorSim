@@ -117,7 +117,15 @@ class Building:
             else:
                 print("Cur floor:", self.elevators[i].cur_floor)
 
-            print("Moving: " + str(self.elevators[i].is_moving) + ". Up: " + str(self.elevators[i].is_moving_up))
+            if self.elevators[i].is_idle:
+                print("State: Idle")
+            elif self.elevators[i].is_active:
+                print("State: Active, Up: " + str(self.elevators[i].is_moving_up))
+            elif self.elevators[i].is_loading:
+                print("State: Loading")
+            else:
+                print("State: Returning to floor " + str(self.elevators[i].return_to_floor))
+            
             if self.elevators[i].loading_steps != 0:
                 print("loading steps:", self.elevators[i].loading_steps)
             #print("Is moving up:", self.elevators[i].is_moving_up)
@@ -127,7 +135,7 @@ class Building:
                 if len(self.elevators[i].people_by_destination[key]) != 0:
                     print(str(len(self.elevators[i].people_by_destination[key])) + " people with destination " + str(key))
                     #self.debug_simulation_loop = True
-            print("\n")
+            print("")
             if len(self.elevators[i].up_stops) > 0 or len(self.elevators[i].down_stops) > 0:
                 self.debug_simulation_loop = True
         

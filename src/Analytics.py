@@ -130,9 +130,9 @@ class Analytics:
     """
     def handle_daily_elevator_counters(self, elevator):
         self.daily_avg_elevator_idle_steps[-1] += elevator.idle_counters[0]
-        self.daily_avg_elevator_active_steps[-1] += elevator.active_counters[1]
-        self.daily_avg_elevator_loading_steps[-1] += elevator.loading_counters[1]
-        self.daily_avg_elevator_returning_steps[-1] += elevator.returning_counters[1]
+        self.daily_avg_elevator_active_steps[-1] += elevator.active_counters[0]
+        self.daily_avg_elevator_loading_steps[-1] += elevator.loading_counters[0]
+        self.daily_avg_elevator_returning_steps[-1] += elevator.returning_counters[0]
 
         elevator.idle_counters[0] = 0
         elevator.active_counters[0] = 0
@@ -292,10 +292,14 @@ class Analytics:
 
     def print_defining_averages(self, building):
         #avg_daily_person_wait_time_seconds = self.steps_to_seconds(np.sum(self.daily_avg_person_waiting_steps) / len(constants.days_of_week))
-        avg_hourly_person_wait_time_seconds = self.steps_to_seconds(np.sum(self.hourly_avg_person_waiting_steps) / constants.hours_per_day)
-        print("Avg Hourly Person Wait Time (seconds):", avg_hourly_person_wait_time_seconds )
-        avg_hourly_person_wait_time_minutes = self.steps_to_minutes(np.sum(self.hourly_avg_person_waiting_steps) / constants.hours_per_day)
-        print("Avg Hourly Person Wait Time (minutes):", avg_hourly_person_wait_time_minutes )
+        #avg_hourly_person_wait_time_seconds = self.steps_to_seconds(np.sum(self.hourly_avg_person_waiting_steps) / constants.hours_per_day)
+        #print("Avg Hourly Person Wait Time (seconds):", avg_hourly_person_wait_time_seconds)
+        avg_hourly_person_wait_time_minutes = self.steps_to_minutes(np.sum(self.hourly_avg_person_waiting_steps) / len(self.hourly_avg_person_waiting_steps))
+        print("Avg Hourly Person Wait Time (minutes):", avg_hourly_person_wait_time_minutes)
+
+        avg_daily_person_wait_time_hours = self.steps_to_hours(np.sum(self.daily_avg_person_waiting_steps) / len(self.daily_avg_person_waiting_steps))
+        print("Avg Daily Person Wait Time (hours):", avg_daily_person_wait_time_hours)
+
 
 
 

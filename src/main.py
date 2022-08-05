@@ -7,7 +7,7 @@ import Simulation
 import constants
 
 state_names = ["freetime", "class", "sleep", "meal", "exercise", "shop", "chores", "study"]
-HERE_floor_populations = [0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+HERE_floor_populations = [0, 0, 0, 0, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10]
 HERE_dest_floors_by_state_name = {
     "freetime": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14], # Person can go anywhere during freetime
     "class": [0], # Must go to ground floor for in person class
@@ -30,8 +30,8 @@ for day in tqdm(range(7)): # Persons' Schedules are weekly, so be sure to mod 'd
     for step in tqdm(range(int(constants.steps_per_day))):
         analytics.evaluate_simulation(building, day, step)
 
-        Simulation.handle_state_changes_scheduled(building, day, step) # First. Check if anybody not waiting for an elevator needs to start doing so.
-        #Simulation.handle_state_changes_randomly(building) # First. Check if anybody not waiting for an elevator needs to start doing so.
+        #Simulation.handle_state_changes_scheduled(building, day, step) # First. Check if anybody not waiting for an elevator needs to start doing so.
+        Simulation.handle_state_changes_randomly(building) # First. Decide if anybody not waiting for an elevator needs to start doing so.
         #building.print_building_state() 
         Simulation.handle_new_button_presses(building)
 

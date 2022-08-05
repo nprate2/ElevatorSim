@@ -166,7 +166,7 @@ Takes:
 building - Building class
 """
 def handle_state_changes_randomly(building):
-    probability = .01
+    probability = .001
     for floor in building.floors:
         for person in floor.people_on_floor:
             # With given probability, determine if person will start waiting for an elevator
@@ -426,7 +426,7 @@ Takes:
 building - Building class
 elevator - Elevator class that needs to stop being active
 """
-def handle_active_elevator_state_change(building, elevator):
+def set_elevator_active_or_returning(building, elevator):
     if building.elevator_algorithm.algorithm == "stay_where_loading":
         # Elevator becomes idle
         set_elevator_idle(elevator)
@@ -472,6 +472,7 @@ def update_active_up_elevator(building, elevator):
 
         # Remove the handled floor from up_stops
         elevator.up_stops.remove(elevator.cur_floor)
+        #if len(elevator.up_stops) == 0:
 
         # If the elevator had deidled_floor set, it just got handled and should be set back to -1 to signify it is ready to recieve more stops.
         if elevator.deidled_floor != -1:
@@ -539,20 +540,26 @@ This function is called by update_loading_elevators when an Elevator finishes a 
 
 Takes:
 building - Building class
-elevator - Elevator class that is finished with its stop
+elevator - Elevator class that is finished with its stop that was moving down
 """
 def handle_loading_elevator_state_change(building, elevator):
     if len(elevator.down_stops) == 0:
         if len(elevator.up_stops) == 0:
-            # If there are no more stops to make, the active Elevator either becomes idle or returning
-            handle_active_elevator_state_change(building, elevator)
+            # There are no more up_stops or down_stops, the active Elevator either becomes idle or returning
+            set_elevator_active_or_returning(building, elevator)
 
         else:
-            # Then this Elevator switches direction of travel
-            elevator.is_moving_up = not elevator.is_moving_up
+            # There are no more down_stops but there are up_stops
+            if not elevator.is_moving_up:
+                # Elevator needs to switch direction of travel (was moving down but only up_stops remain)
+                set_elevator_active(elevator, is_moving_up=(not elevator.is_moving_up))
+
     else:
-        # More stops
-        set_elevator_active(elevator, is_moving_up=elevator.is_moving_up)
+        if len(elevator.up_stops) == 0:
+            # There are no more up_stops but there are down_stops
+            if elevator.is_moving_up:
+                # Elevator needs to switch direction of travel (was moving up but only down_stops remain)
+                set_elevator_active(elevator, is_moving_up=(not elevator.is_moving_up))
 
 """
 Updates all loading Elevators in a Building each tick of simulation.
