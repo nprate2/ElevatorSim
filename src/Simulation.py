@@ -36,6 +36,7 @@ elevator - Elevator class
 is_moving_up - Boolean representing whether the Elevator will move up or down
 """
 def set_elevator_active(elevator, is_moving_up):
+    print("Elevator " + str(elevator.id) + " set to active")
     elevator.is_active = True
     elevator.is_moving_up = is_moving_up
 
@@ -50,6 +51,7 @@ Takes:
 elevator - Elevator class
 """
 def set_elevator_idle(elevator):
+    print("Elevator " + str(elevator.id) + " set to idle")
     elevator.is_idle = True
 
     elevator.is_active = False
@@ -63,6 +65,7 @@ Takes:
 elevator - Elevator class
 """
 def set_elevator_loading(elevator):
+    print("Elevator " + str(elevator.id) + " set to loading")
     elevator.is_loading = True
 
     elevator.is_active = False
@@ -77,6 +80,7 @@ elevator - Elevator class
 is_moving_up - Boolean representing whether the Elevator will move up or down
 """
 def set_elevator_returning(elevator, is_moving_up):
+    print("Elevator " + str(elevator.id) + " set to returning")
     elevator.is_returning = True
     elevator.is_moving_up = is_moving_up
 
@@ -426,8 +430,8 @@ Takes:
 building - Building class
 elevator - Elevator class that needs to stop being active
 """
-def set_elevator_active_or_returning(building, elevator):
-    if building.elevator_algorithm.algorithm == "stay_where_loading":
+def set_elevator_idle_or_returning(building, elevator):
+    if building.elevator_algorithm.algorithm == "stay_where_stopped":
         # Elevator becomes idle
         set_elevator_idle(elevator)
 
@@ -546,13 +550,16 @@ def handle_loading_elevator_state_change(building, elevator):
     if len(elevator.down_stops) == 0:
         if len(elevator.up_stops) == 0:
             # There are no more up_stops or down_stops, the active Elevator either becomes idle or returning
-            set_elevator_active_or_returning(building, elevator)
+            set_elevator_idle_or_returning(building, elevator)
 
         else:
             # There are no more down_stops but there are up_stops
             if not elevator.is_moving_up:
                 # Elevator needs to switch direction of travel (was moving down but only up_stops remain)
                 set_elevator_active(elevator, is_moving_up=(not elevator.is_moving_up))
+            else:
+                # Elevator continues moving up
+                set_elevator_active(elevator, elevator.is_moving_up)
 
     else:
         if len(elevator.up_stops) == 0:
@@ -560,6 +567,12 @@ def handle_loading_elevator_state_change(building, elevator):
             if elevator.is_moving_up:
                 # Elevator needs to switch direction of travel (was moving up but only down_stops remain)
                 set_elevator_active(elevator, is_moving_up=(not elevator.is_moving_up))
+            else:
+                # Elevator continues moving down
+                set_elevator_active(elevator, elevator.is_moving_up)
+        else:
+            # If both up_stops and down_stops remain, Elevator simply continues moving as it was
+            set_elevator_active(elevator, elevator.is_moving_up)
 
 """
 Updates all loading Elevators in a Building each tick of simulation.

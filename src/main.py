@@ -43,8 +43,8 @@ analytics.compute_hourly_step_averages(building)
 
 analytics.print_defining_averages(building)
 
-#analytics.graph_daily_step_averages()
-#analytics.graph_hourly_step_averages()
-#analytics.graph_daily_minute_averages()
-#analytics.graph_hourly_minute_averages()
+analytics.graph_daily_step_averages()
+analytics.graph_hourly_step_averages()
+analytics.graph_daily_minute_averages()
+analytics.graph_hourly_minute_averages()
         

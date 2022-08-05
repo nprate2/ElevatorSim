@@ -75,7 +75,7 @@ def assign_stop_SWS(elevators, floor_id, direction):
             if floor_id in elevator.down_stops:
                 return True
 
-    # Check if there is an idle elevator on the correct floor
+    # Check if there is an idle Elevator on the correct Floor
     for i in range(len(elevators)):
         if elevators[i].is_idle and elevators[i].cur_floor == floor_id:
             elevators[i].is_idle = False
@@ -88,11 +88,16 @@ def assign_stop_SWS(elevators, floor_id, direction):
                 elevators[i].down_stops.append(floor_id)
                 elevators[i].is_moving_up = False
             return True
-    # Sort Elevators into elevators_moving_towards and elevators_idle
-    elevators_moving_towards = []
+
+    # Sort Elevators into elevators_idle and elevators_moving_towards (active AND loading Elevators can be 'moving towards')
     elevators_idle = []
+    elevators_moving_towards = []
+
     for i in range(len(elevators)):
-        if elevators[i].is_active:
+        if elevators[i].is_idle:
+            elevators_idle.append(elevators[i])
+        
+        elif elevators[i].is_active or elevators[i].is_loading:
             if direction == "up":
                 # Check if Elevator is moving up towards floor_id
                 if elevators[i].cur_floor < floor_id and elevators[i].is_moving_up and elevators[i].deidled_floor == -1:
@@ -102,8 +107,6 @@ def assign_stop_SWS(elevators, floor_id, direction):
                 if elevators[i].cur_floor > floor_id and not elevators[i].is_moving_up and elevators[i].deidled_floor == -1:
                     elevators_moving_towards.append(elevators[i])
             
-        else:
-            elevators_idle.append(elevators[i])
     # Assign the nearest elevator moving towards, if one exists
     if len(elevators_moving_towards) != 0:
         min_dist = np.inf
@@ -168,6 +171,8 @@ assigned - Boolean representing if the requested stop was successfully assigned.
 Runs in as litte as O(E) and as long as O(4E) time, where E is number of Elevators
 """
 def assign_stop_RT(elevators, floor_id, direction):
+    return False
+    """
     # Check if there is and Elevator that was previously scheduled to stop at the requested Floor
     for elevator in elevators:
         if direction == "up":
@@ -180,24 +185,24 @@ def assign_stop_RT(elevators, floor_id, direction):
     # Check if there is an idle elevator on the correct floor
     for i in range(len(elevators)):
         if elevators[i].is_idle and elevators[i].cur_floor == floor_id:
+            # Need to change state of Elevator here in case multiple stops need to be assigned during one simulation tick
             elevators[i].is_idle = False
             elevators[i].is_active = True
             if direction == "up":
                 elevators[i].up_stops.append(floor_id)
-                # Need to change state of Elevator here in case multiple stops need to be assigned during one simulation tick
                 elevators[i].is_moving_up = True
             else:
                 elevators[i].down_stops.append(floor_id)
-                # Need to change state of Elevator here in case multiple stops need to be assigned during one simulation tick
                 elevators[i].is_moving_up = False
             return True
-    # Sort Elevators into elevators_moving_towards, elevators_idle, and elevators_returning
-    elevators_returning = []
-    elevators_moving_towards = []
+    # Sort Elevators into idle, active, loading, and returning categories
     elevators_idle = []
+    elevators_active = []
+    elevators_loading = []
+    elevators_returning = []
     for i in range(len(elevators)):
-        if elevators[i].is_returning:
-            elevators_returning.append(elevators[i])
+        if elevators[i].is_idle:
+            elevators_idle.append(elevators[i])
 
         elif elevators[i].is_active:
             if direction == "up":
@@ -208,9 +213,15 @@ def assign_stop_RT(elevators, floor_id, direction):
                 # Check if Elevator is moving down towards floor_id
                 if elevators[i].cur_floor > floor_id and not elevators[i].is_moving_up and elevators[i].deidled_floor == -1:
                     elevators_moving_towards.append(elevators[i])
+        
+        elif elevators[i].is_loading:
+            #WIP
+        
+        elif elevators[i].is_returning:
+            elevators_returning.append(elevators[i])
             
         else:
-            elevators_idle.append(elevators[i])
+            
 
     min_towards_dist = np.inf
     min_towards_idx = 0
@@ -293,3 +304,4 @@ def assign_stop_RT(elevators, floor_id, direction):
             return False # If the nearest Elevator is returning and is on floor_id, the stop is not assigned because the Elevator is already moving through this floor.
 
     return True
+    """
