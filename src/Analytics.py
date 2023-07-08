@@ -291,15 +291,19 @@ class Analytics:
 
 
     def print_defining_averages(self, building):
-        #avg_daily_person_wait_time_seconds = self.steps_to_seconds(np.sum(self.daily_avg_person_waiting_steps) / len(constants.days_of_week))
-        #avg_hourly_person_wait_time_seconds = self.steps_to_seconds(np.sum(self.hourly_avg_person_waiting_steps) / constants.hours_per_day)
-        #print("Avg Hourly Person Wait Time (seconds):", avg_hourly_person_wait_time_seconds)
         avg_hourly_person_wait_time_minutes = self.steps_to_minutes(np.sum(self.hourly_avg_person_waiting_steps) / len(self.hourly_avg_person_waiting_steps))
         print("Avg Hourly Person Wait Time (minutes):", avg_hourly_person_wait_time_minutes)
+
+        avg_hourly_person_ride_time_minutes = self.steps_to_minutes(np.sum(self.hourly_avg_person_riding_steps) / len(self.hourly_avg_person_riding_steps))
+        print("Avg Hourly Person Ride Time (minutes)", avg_hourly_person_ride_time_minutes)
 
         avg_daily_person_wait_time_hours = self.steps_to_hours(np.sum(self.daily_avg_person_waiting_steps) / len(self.daily_avg_person_waiting_steps))
         print("Avg Daily Person Wait Time (hours):", avg_daily_person_wait_time_hours)
 
+        avg_daily_person_ride_time_hours = self.steps_to_hours(np.sum(self.daily_avg_person_riding_steps) / len(self.daily_avg_person_riding_steps))
+        print("Avg Daily Person Ride Time (hours):", avg_daily_person_ride_time_hours)
+
+        
 
 
 
@@ -438,7 +442,7 @@ class Analytics:
         fig.suptitle("Average Hourly Elevator Minutes Breakdown")
 
         ax1.plot(list(map(self.steps_to_minutes, self.hourly_avg_elevator_idle_steps)))
-        ax2.set_ylim([0, int(constants.minutes_per_hour)])
+        ax1.set_ylim([0, int(constants.minutes_per_hour)])
         ax1.set_title("Minutes Idle")
 
         ax2.plot(list(map(self.steps_to_minutes, self.hourly_avg_elevator_active_steps)))
@@ -459,11 +463,11 @@ class Analytics:
         fig.suptitle('Average Hourly Person Minutes Breakdown')
 
         ax1.plot(list(map(self.steps_to_minutes, self.hourly_avg_person_riding_steps)))
-        ax1.set_ylim([0, int(constants.minutes_per_hour)])
+        #ax1.set_ylim([0, int(constants.minutes_per_hour)])
         ax1.set_title("Minutes Riding")
 
         ax2.plot(list(map(self.steps_to_minutes, self.hourly_avg_person_waiting_steps)))
-        ax2.set_ylim([0, int(constants.minutes_per_hour)])
+        #ax2.set_ylim([0, int(constants.minutes_per_hour)])
         ax2.set_title("Minutes Waiting")
 
         plt.show()

@@ -13,16 +13,14 @@ class Building:
     
     # Brains of the elevator system. Utilizes elevators list to schedule routes to visit floors with pressed "call elevator" buttons.
     elevator_algorithm = None
-    #elevator_return_to_floors = []
 
     # (Changing) Used to keep track of which floors have a "call elevator" button pressed that hasn't been assigned to an elevator yet.
     floors_new_up_button = []
     floors_new_down_button = []
 
-    daily_floor_destination_counters = []
-    daily_floor_departure_counters = []
-    hourly_floor_destination_counters = []
-    hourly_floor_departure_counters = []
+    floor_destination_counters = []
+    floor_departure_counters = []
+    
     # Used to run one step of the simulation loop at a time once an Elevator is detected to be carrying people
     debug_simulation_loop = False
 

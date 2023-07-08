@@ -1,5 +1,4 @@
 from tqdm import tqdm
-import numpy as np
 
 from Building import Building
 from Analytics import Analytics
@@ -30,8 +29,8 @@ for day in tqdm(range(7)): # Persons' Schedules are weekly, so be sure to mod 'd
     for step in tqdm(range(int(constants.steps_per_day))):
         analytics.evaluate_simulation(building, day, step)
 
-        #Simulation.handle_state_changes_scheduled(building, day, step) # First. Check if anybody not waiting for an elevator needs to start doing so.
-        Simulation.handle_state_changes_randomly(building) # First. Decide if anybody not waiting for an elevator needs to start doing so.
+        Simulation.handle_state_changes_scheduled(building, day, step) # First. Check if anybody not waiting for an elevator needs to start doing so.
+        #Simulation.handle_state_changes_randomly(building, probability=0.001) # First. Decide if anybody not waiting for an elevator needs to start doing so.
         #building.print_building_state() 
         Simulation.handle_new_button_presses(building)
 
@@ -43,8 +42,8 @@ analytics.compute_hourly_step_averages(building)
 
 analytics.print_defining_averages(building)
 
-analytics.graph_daily_step_averages()
-analytics.graph_hourly_step_averages()
-analytics.graph_daily_minute_averages()
+#analytics.graph_daily_step_averages()
+#analytics.graph_hourly_step_averages()
+#analytics.graph_daily_minute_averages()
 analytics.graph_hourly_minute_averages()
         

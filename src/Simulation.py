@@ -28,66 +28,7 @@ update_elevators(building)
 """
 
 
-"""
-Sets the state of an Elevator to active.
-
-Takes:
-elevator - Elevator class
-is_moving_up - Boolean representing whether the Elevator will move up or down
-"""
-def set_elevator_active(elevator, is_moving_up):
-    print("Elevator " + str(elevator.id) + " set to active")
-    elevator.is_active = True
-    elevator.is_moving_up = is_moving_up
-
-    elevator.is_idle = False
-    elevator.is_loading = False
-    elevator.is_returning = False
-
-"""
-Sets the state of an Elevator to idle.
-
-Takes:
-elevator - Elevator class
-"""
-def set_elevator_idle(elevator):
-    print("Elevator " + str(elevator.id) + " set to idle")
-    elevator.is_idle = True
-
-    elevator.is_active = False
-    elevator.is_loading = False
-    elevator.is_returning = False
-
-"""
-Sets the state of an Elevator to loading.
-
-Takes:
-elevator - Elevator class
-"""
-def set_elevator_loading(elevator):
-    print("Elevator " + str(elevator.id) + " set to loading")
-    elevator.is_loading = True
-
-    elevator.is_active = False
-    elevator.is_idle = False
-    elevator.is_returning = False
-
-"""
-Sets the state of an Elevator to returning.
-
-Takes:
-elevator - Elevator class
-is_moving_up - Boolean representing whether the Elevator will move up or down
-"""
-def set_elevator_returning(elevator, is_moving_up):
-    print("Elevator " + str(elevator.id) + " set to returning")
-    elevator.is_returning = True
-    elevator.is_moving_up = is_moving_up
-
-    elevator.is_active = False
-    elevator.is_idle = False
-    elevator.is_loading = False
-
+pass
 """
 Updates a Building when a Person needs to travel down.
 
@@ -169,8 +110,7 @@ Randomly (based on simulation probabilities) choose Persons to begin waiting for
 Takes:
 building - Building class
 """
-def handle_state_changes_randomly(building):
-    probability = .001
+def handle_state_changes_randomly(building, probability):
     for floor in building.floors:
         for person in floor.people_on_floor:
             # With given probability, determine if person will start waiting for an elevator
@@ -405,6 +345,12 @@ returning_elevators - list of Elevators that are returning
 """
 def update_returning_elevators(building, returning_elevators):
     for elevator in returning_elevators:
+        # Check if the Elevator was assigned stops (returning cancelled)
+        if len(elevator.up_stops) != 0:
+            elevator.set_state_active(is_moving_up=True)
+        elif len(elevator.down_stops) != 0:
+            elevator.set_state_active(is_moving_up=False)
+            
         if elevator.cur_floor == elevator.return_to_floor:
             # Elevator should become idle
             elevator.is_returning = False
@@ -433,21 +379,21 @@ elevator - Elevator class that needs to stop being active
 def set_elevator_idle_or_returning(building, elevator):
     if building.elevator_algorithm.algorithm == "stay_where_stopped":
         # Elevator becomes idle
-        set_elevator_idle(elevator)
+        elevator.set_state_idle()
 
     elif building.elevator_algorithm.algorithm == "return_to":
         # Elevator starts returning
         if elevator.cur_floor == elevator.return_to_floor:
             # Elevator becomes idle because it's already at its return_to_floor
-            set_elevator_idle(elevator)
+            elevator.set_state_idle()
 
         elif elevator.cur_floor < elevator.return_to_floor:
             # Elevator is below return_to_floor
-            set_elevator_returning(elevator, is_moving_up=True)
+            elevator.set_state_returning(is_moving_up=True)
 
         else:
             # Elevator is above return_to_floor
-            set_elevator_returning(elevator, is_moving_up=False)
+            elevator.set_state_returning(is_moving_up=False)
 
 """
 Updates an active Elevator travelling up in a Building each tick of simulation.
@@ -465,8 +411,7 @@ def update_active_up_elevator(building, elevator):
         exit()
     
     if elevator.cur_floor in elevator.up_stops:
-        elevator.loading_steps = elevator.steps_per_load # If Elevator is stopping to onboard or offload Persons, set loading_steps counter
-        set_elevator_loading(elevator)
+        elevator.set_state_loading()
 
         # Handle people that want to onboard
         handle_onboard(building, elevator)
@@ -503,8 +448,7 @@ def update_active_down_elevator(building, elevator):
         exit()
     
     if elevator.cur_floor in elevator.down_stops:
-        elevator.loading_steps = elevator.steps_per_load # If Elevator is stopping to onboard Persons, set loading_steps counter
-        set_elevator_loading(elevator)
+        elevator.set_state_loading()
 
         # Handle people that want to onboard
         handle_onboard(building, elevator)
@@ -556,23 +500,23 @@ def handle_loading_elevator_state_change(building, elevator):
             # There are no more down_stops but there are up_stops
             if not elevator.is_moving_up:
                 # Elevator needs to switch direction of travel (was moving down but only up_stops remain)
-                set_elevator_active(elevator, is_moving_up=(not elevator.is_moving_up))
+                elevator.set_state_active(is_moving_up=(not elevator.is_moving_up))
             else:
                 # Elevator continues moving up
-                set_elevator_active(elevator, elevator.is_moving_up)
+                elevator.set_state_active(elevator.is_moving_up)
 
     else:
         if len(elevator.up_stops) == 0:
             # There are no more up_stops but there are down_stops
             if elevator.is_moving_up:
                 # Elevator needs to switch direction of travel (was moving up but only down_stops remain)
-                set_elevator_active(elevator, is_moving_up=(not elevator.is_moving_up))
+                elevator.set_state_active((not elevator.is_moving_up))
             else:
                 # Elevator continues moving down
-                set_elevator_active(elevator, elevator.is_moving_up)
+                elevator.set_state_active(elevator.is_moving_up)
         else:
             # If both up_stops and down_stops remain, Elevator simply continues moving as it was
-            set_elevator_active(elevator, elevator.is_moving_up)
+            elevator.set_state_active(elevator.is_moving_up)
 
 """
 Updates all loading Elevators in a Building each tick of simulation.
@@ -602,12 +546,12 @@ def update_idle_elevators(building, idle_elevators):
         if len(idle_elevator.up_stops) != 0:
             # Set Elevator to active going up
             print("set elev " + str(idle_elevator.id) + " active going up")
-            set_elevator_active(idle_elevator, is_moving_up=True)
+            idle_elevator.set_state_active(is_moving_up=True)
 
         elif len(idle_elevator.down_stops) != 0:
             # Set Elevator to active doing down
             print("set elev " + str(idle_elevator.id) + " active going down")
-            set_elevator_active(idle_elevator, is_moving_up=False)
+            idle_elevator.set_state_active(is_moving_up=False)
 
 
 """

@@ -32,19 +32,8 @@ class Elevator:
     # List of floors to stop at going up (includes destination floors and requested external stops where new people will get on elevator). Order of list does not represent stopping order.
     down_stops = []
 
-    # Counters used to track how many steps are spent in various states (idle, active, loading)
-    #daily_steps_idle = 0
-    #hourly_steps_idle = 0
-    #daily_steps_active = 0
-    #hourly_steps_active = 0
-    #daily_steps_loading = 0
-    #hourly_steps_loading = 0
-
-    # List of integers used to count simulation steps spent in various states
-    # Idxs and uses: 0 - daily steps idle, 1 - hourly steps idle, 2 - daily steps active,
-    #                3 - hourly steps active, 4 - daily steps loading, 5 - hourly steps loading
-    #                6 - daily steps returning, 7 - hourly steps returning
-    #counters = np.zeros((8,), dtype=int)
+    # Each counter is an array of two integers, tracking the number of simulation steps this Elevator spends in a particular state.
+    # array[0] represents the daily count, array[1] represents the hourly count
     idle_counters = np.zeros((2,), dtype=int)
     active_counters = np.zeros((2,), dtype=int)
     loading_counters = np.zeros((2,), dtype=int)
@@ -76,5 +65,60 @@ class Elevator:
         self.active_counters = deepcopy(self.active_counters)
         self.loading_counters = deepcopy(self.loading_counters)
         self.returning_counters = deepcopy(self.returning_counters)
+
+    """
+    Sets the state of an Elevator to active.
+
+    Takes:
+    is_moving_up - Boolean representing whether the Elevator will move up or down
+    """
+    def set_state_active(self, is_moving_up):
+        #print("Elevator " + str(self.id) + " set to active")
+        self.is_active = True
+        self.is_moving_up = is_moving_up
+
+        self.is_idle = False
+        self.is_loading = False
+        self.is_returning = False
+
+    """
+    Sets the state of an Elevator to idle.
+    """
+    def set_state_idle(self):
+        #print("Elevator " + str(self.id) + " set to idle")
+        self.is_idle = True
+
+        self.is_active = False
+        self.is_loading = False
+        self.is_returning = False
+
+    """
+    Sets the state of an Elevator to loading.
+    """
+    def set_state_loading(self):
+        #print("Elevator " + str(self.id) + " set to loading")
+        self.is_loading = True
+
+        self.is_active = False
+        self.is_idle = False
+        self.is_returning = False
+
+        self.loading_steps = self.steps_per_load # set loading_steps counter to know when loading terminates
+
+    """
+    Sets the state of an Elevator to returning.
+
+    Takes:
+    is_moving_up - Boolean representing whether the Elevator will move up or down
+    """
+    def set_state_returning(self, is_moving_up):
+        print("Elevator " + str(self.id) + " set to returning")
+        self.is_returning = True
+        self.is_moving_up = is_moving_up
+
+        self.is_active = False
+        self.is_idle = False
+        self.is_loading = False
+
 
         
